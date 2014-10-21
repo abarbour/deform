@@ -1,2 +1,3 @@
+NOBUILD
 ^.*\.Rproj$
 ^\.Rproj\.user$
