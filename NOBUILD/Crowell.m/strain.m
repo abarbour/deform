@@ -25,11 +25,11 @@ for i = 1:length(LON(:,1))
         for k=1:length(lon)   
             dx1 = (lon(k)-LON(i,j))*llon(i,j);
             dx2 = (lat(k)-LAT(i,j))*llat(i,j);
-            d = (dx1^2+dx2^2)^0.5/1000;%distance to each grid point
-            u=[u;e(k)/1000;n(k)/1000];%displacements or velocities
-            G=[G;1 0 dx1 dx2 0 0;0 1 0 0 dx1 dx2];%green's function representation of translation plus velocity gradient tensor components
-            W(2*(k-1)+1,2*(k-1)+1)=exp(-d^2/2/aa^2);%Weighting matrix, for east
-            W(2*(k-1)+2,2*(k-1)+2)=exp(-d^2/2/aa^2);%Weighting matrix, for north
+            d = (dx1^2 + dx2^2)^0.5/1000; %distance to each grid point
+             u =[u;e(k)/1000;n(k)/1000]; %displacements or velocities
+            G = [G;1 0 dx1 dx2 0 0;0 1 0 0 dx1 dx2]; %green's function representation of translation plus velocity gradient tensor components
+            W(2*(k-1)+1,2*(k-1)+1)=exp(-d^2/2/aa^2); %Weighting matrix, for east
+            W(2*(k-1)+2,2*(k-1)+2)=exp(-d^2/2/aa^2); %Weighting matrix, for north
         end
 
         [S] = lsqlin(G'*W*G,G'*W*u,[],[]);%solve for strain
