@@ -17,6 +17,7 @@ ellipsoid(model = c("IRTF", "WGS84"))
 Compute the length of 1-degree of latitude and longitude
 }
 \examples{
+\dontrun{
 lats <- 30:32
 # Lon should be about 111.4 km, and Lat 96 - 94 km
 degreelen(lats)
@@ -31,6 +32,7 @@ all.equal(degreelen(lats,"IRTF"), degreelen(lats,"WGS84"), tolerance = .Machine$
 options(digits=13)
 lats <- 30.1111111123
 rbind(degreelen(lats,"IRTF"),degreelen(lats,"WGS84"))
+}
 }
 \author{
 A.J.Barbour, adapted from \code{degreelen.m} by B.W.Crowell

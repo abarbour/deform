@@ -5,6 +5,7 @@
 #' @author A.J.Barbour, adapted from \code{degreelen.m} by B.W.Crowell
 #' @references \url{http://en.wikipedia.org/wiki/World_Geodetic_System}
 #' @examples
+#' \dontrun{
 #' lats <- 30:32
 #' # Lon should be about 111.4 km, and Lat 96 - 94 km
 #' degreelen(lats)
@@ -19,6 +20,7 @@
 #' options(digits=13)
 #' lats <- 30.1111111123
 #' rbind(degreelen(lats,"IRTF"),degreelen(lats,"WGS84"))
+#' }
 degreelen <- function(lat, model){
   #
   pic <- pi/180
