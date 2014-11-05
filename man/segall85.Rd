@@ -25,4 +25,7 @@ su <- surface_displacement(x.*1e3, z_src=1e3)
 plot(uz ~ x, su, type="b")
 }
 }
+\seealso{
+\code{\link{Simple-deformation}}
+}
 

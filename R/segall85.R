@@ -1,6 +1,7 @@
 #' Surface deformation associated with fluid withdrawl
 #' @name segall85
 #' @export
+#' @seealso \code{\link{Simple-deformation}}
 #' @examples
 #' \dontrun{
 #' x. <- c(-10:-2, seq(-1.9,1.9,by=0.1), 2:10)
@@ -74,6 +75,7 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
 #' @param z numeric; values which vary in the direction perpendicular to the \code{x}-\code{y} plane
 #' @param left logical; should padding be on the "left" side of the vector (i.e., index number 1)?
 #' @export
+#' @seealso \code{\link{segall85}}
 #' @examples
 #' # Some x values
 #' xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))

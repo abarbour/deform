@@ -45,4 +45,7 @@ sue <- with(su, Uniaxial_extension(x, X=ux))
 .setleft(1,TRUE) # NA  1
 .setleft(1,FALSE) # 1  NA
 }
+\seealso{
+\code{\link{segall85}}
+}
 

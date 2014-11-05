@@ -15,9 +15,9 @@ lines(uz ~ x, su, type="l", pch=16, cex=1, lwd=2, col="grey"); text(2e3, -5, "U_
 lines(ux ~ x, su, type="l", pch=16, col="blue", cex=1, lwd=2); text(0, 6, "U_x", col="blue", pos=2)
 points(uxz.mag ~ x, su, col="red", pch=16, cex=0.6); text(-3e3, 8, "|U_xz|", col="red")
 try(my.symbols(x=su$x, y=su$uxz.mag, 
-           ms.arrows, angle=su$uxz.ang*pi/180, 
+           ms.arrows, 
            #r=(su$uxz.mag),
-           adj=0, col="red", inches=0.8, add=TRUE))
+           adj=0, col="red", inches=0.8, add=TRUE, angle=su$uxz.ang*pi/180))
 lines(ztilt*1e2 ~ x, sut, type="h", lwd=5, col="lightgreen"); text(1.1e3, 2, "Tilt = 2*dUz/dx", col="dark green", pos=4)
 lines(ztilt*1e2 ~ x, sut, lwd=3,col="dark green")
 lines(dXdx*1e2 ~ x, sue, type="h", lwd=4, col="grey60"); text(-1e2, 2, "Eee = dUx/dx", pos=2)
