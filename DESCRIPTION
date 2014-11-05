@@ -15,7 +15,9 @@ Depends:
     RCurl,
     rgdal,
     sp,
-    maptools
+    maptools,
+    plyr,
+    reshape2
 Suggests:
     maps
 LinkingTo: Rcpp
