@@ -65,3 +65,61 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
   }
   outer(X=x, Y=Time, FUN=.tvsd, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.)
 }
+
+#' Simple numerical deformation estimates
+#' @name Simple-deformation
+#' @param x numeric; the spatial vector in real units (not an index!)
+#' @param X numeric; the quantity varying in the direction of \code{x}
+#' @param y numeric; the spatial vector perpendicular to \code{x} in real units
+#' @param z numeric; values which vary in the direction perpendicular to the \code{x}-\code{y} plane
+#' @param left logical; should padding be on the "left" side of the vector (i.e., index number 1)?
+#' @export
+#' @examples
+#' # Some x values
+#' xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
+#' 
+#' #  surface displacements
+#' su <- surface_displacement(xval.*1e3, C.=1e13, z_src=0.7e3)
+#' 
+#' # Vertical tilt -- assumes axial symmetry
+#' sut <- with(su, Tilt(x, z=uz))
+#' # including anisotropic effects
+#' sut <- with(su, Tilt(x, x=x+rnorm(length(x)), z=uz))
+#' 
+#' # Calculate strain in the 'x' direction
+#' sue <- with(su, Uniaxial_extension(x, X=ux))
+#' 
+#' # see how the 'left' argument affects things:
+#' .setleft(1,TRUE) # NA  1
+#' .setleft(1,FALSE) # 1  NA
+Uniaxial_extension <- function(x, X, left=TRUE){
+  deriv <- diff(X)/diff(x)
+  dXdx <- .setleft(deriv, left)
+  data.frame(x, dXdx)
+}
+#' @rdname Simple-deformation
+#' @export
+Tilt <- function(x, y=NULL, z, left=TRUE){
+  deriv1 <- diff(z)/diff(x)
+  dzdx <- .setleft(deriv1, left)
+  dzdy <- if (is.null(y)){
+    dzdx
+  } else {
+    # this needs to be more intelligent:
+    # what if z is a matrix!?
+    deriv2 <- diff(z)/diff(x)
+    .setleft(deriv2, left)
+  }
+  tlt <- dzdx + dzdy
+  #ang <- 90 - tlt * 180 /pi
+  data.frame(x=x, ztilt = tlt)
+}
+#' @rdname Simple-deformation
+#' @export
+.setleft <- function(x, left=TRUE){
+  if (left){
+    c(NA, x)
+  } else {
+    c(x, NA)
+  }
+}
