@@ -55,13 +55,14 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
     # source
     mod <- 2*.B*(1 + .nuu)*.Vdot*.D*sqrt(ti/.HD)/(3*pi*.L)
     # line source correction
-    sc <- if (.x_src==0){
+    err <- if (.x_src==0){
       1
     } else {
       Time.src <- sqrt(.x_src^2 / 4 / .HD / ti)
-      err <- qnorm(Time.src/2, lower = FALSE)/sqrt(2)  #ierfc
-      sum(err/(.D^2 + (xi - .x_src)^2), na.rm=TRUE)
+      qnorm(Time.src/2, lower = FALSE)/sqrt(2)  #ierfc
     }
+    print(err)
+    sc <- sum(err/(.D^2 + (xi - .x_src)^2), na.rm=TRUE)
     return(mod*sc)
   }
   outer(X=x, Y=Time, FUN=.tvsd, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.)
