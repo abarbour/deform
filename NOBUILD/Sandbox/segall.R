@@ -1,8 +1,8 @@
 library(deform)
 library(TeachingDemos)
 
-x. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
-su <- surface_displacement(x.*1e3, C.=1e13, z_src=0.7e3)
+.x. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
+su <- surface_displacement(.x.*1e3, C.=1e13, z_src=0.7e3)
 
 sut <- with(su, Tilt(x, z=uz))
 sue <- with(su, Uniaxial_extension(x, X=ux))
@@ -32,17 +32,63 @@ F2 <- function(){
 
 # Fig 8
 #y. <- 0:10
-t. <- c(0.1,0.5,1:5)
-Vdot <- 2e6
-D. <- 1e3
-L. <- 10e3
-B. <- 0.6
-c. <- 0.1
-zz2 <- timevarying_surface_displacement(x., t., Vdot, B., L., D., c., x_src.=1)
+.time. <- c(0.1,0.5,1:5)
+.Vdot. <- 2e6
+.D. <- 1e3
+.L. <- 10e3
+.B. <- 0.6
+.c. <- 0.1
+.t. <- 100
+
+ux_XI <- Vectorize(function(Xi.source, ..x, ..t, ..D, ..HD){  
+  #print(paste(Xi.source, .x, .t, .D, .HD))
+  Time.src <- sqrt(Xi.source^2 / 4 / ..HD / ..t)
+  ierfc2(Time.src) / (..D^2 + (..x - Xi.source)^2)
+})
+
+xFUN <- function(Xi, .x=10, .t=30000e5, .D=100, .HD=1){
+  ux_XI(Xi, .x, .t, .D, .HD)
+}
+
+curve(xFUN, -20, 20)
+
+timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nuu.=1/3, source.limits=c(0,0)){
+  # segall85 eq 26
+  # at each time slice, calculate a profile
+  .tvsd <- function(xi, ti, .Vdot, .B, .L, .D, .HD, .nuu, .source.limits){
+    #
+    #
+    #print(paste(xi,ti))
+    #
+    mod <- 2 * .B * (1 + .nuu) * .Vdot * .D * sqrt(ti / .HD) / (3 * pi * .L)
+    #
+    slim <- range(source.limits, na.rm=TRUE)
+    #print(slim)
+    Errint <- integrate(ux_XI, slim[1], slim[2], ..x=xi, ..t=ti, ..D=.D, ..HD=.HD)
+    sc <- Errint$value
+    #
+    return(mod * sc)
+  }
+  #t(apply(X=matrix(x), MARGIN=1, FUN=.tvsd, .t=Time, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.))
+  outer(X=x, Y=Time, FUN=Vectorize(.tvsd), .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .source.limits=source.limits)
+}
+
+zz2 <- timevarying_surface_displacement(.x., .time., .Vdot., .B., .L., .D., .c., source.limits=c(-10,10))
+head(zz2)
+
+zz3 <- timevarying_fluidmass(.x., .time., .Vdot., .L., .t., .c., phi=0.1)
+
+F4 <- function(){
+  matplot(.x., zz3, type="l")
+  matplot(.time., t(zz3), type="l")
+}
+
+try(F4())
+
 
 F3 <- function(){
-  matplot(x., zz2, type="l")
-  matplot(t., t(zz2), type="l")
+  matplot(.x., zz2, type="l")
+  matplot(.time., t(zz2), type="l")
 }
 
 try(F3())

@@ -22,3 +22,7 @@ ierf <- function (x){
 ierfc <- function (x){
   qnorm(x/2, lower = FALSE)/sqrt(2)
 }
+
+ierfc2 <- function(x){
+  exp(-1*x^2)/sqrt(pi) - x*erfc(x)
+}

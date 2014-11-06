@@ -43,29 +43,38 @@ surface_displacement <- function(x, C.=1, mu.=1e9, ...){
   data.frame(x, gx, gz)
 }
 
-# Time varying deformation associatedw with fluid extraction
+#' @rdname segall85
+#' @export
+timevarying_fluidmass <- function(x, Time, Vdot., L., t., HD., phi.){
+  .tvmd <- function(xi, ti, .Vdot, .L, .t, .HD, .phi){
+    -1 * .Vdot * sqrt(ti/.HD) * ierfc2(xi^2/4/.HD/.t) / .L / .t / .phi
+  }
+  outer(X=x, Y=Time, FUN=.tvmd, .Vdot=Vdot., .L=L., .t=t., .HD=HD., .phi=phi.)
+}
+
+# Time varying deformation associated with fluid extraction
 
 #' @rdname segall85
 #' @export
 timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nuu.=1/3, x_src.=0){
   # segall85 eq 26
   # at each time slice, calculate a profile
-  .tvsd <- function(xi, ti, .Vdot, .B, .L, .D, .HD, .nuu, .x_src){
+  .tvsd <- function(xi, .t, .Vdot, .B, .L, .D, .HD, .nuu, .x_src){
     message(paste(.Vdot, .B, .L, .D, .HD, .nuu, .x_src))
     # source
-    mod <- 2*.B*(1 + .nuu)*.Vdot*.D*sqrt(ti/.HD)/(3*pi*.L)
+    tt <- .t
+    xx <- xi
+    #
+    mod <- 2 * .B * (1 + .nuu) * .Vdot * .D * sqrt(tt / .HD) / (3 * pi * .L)
     # line source correction
-    err <- if (.x_src==0){
-      1
-    } else {
-      Time.src <- sqrt(.x_src^2 / 4 / .HD / ti)
-      qnorm(Time.src/2, lower = FALSE)/sqrt(2)  #ierfc
-    }
-    print(err)
-    sc <- sum(err/(.D^2 + (xi - .x_src)^2), na.rm=TRUE)
+    Time.src <- sqrt(.x_src^2 / 4 / .HD / tt)
+    err <- ierfc2(Time.src)
+    #print(err)
+    sc <- (err / (.D^2 + (xx - .x_src)^2)) #sum(, na.rm=TRUE)
     return(mod*sc)
   }
-  outer(X=x, Y=Time, FUN=.tvsd, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.)
+  t(apply(X=matrix(x), MARGIN=1, FUN=.tvsd, .t=Time, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.))
+  #outer(X=x, Y=Time, FUN=.tvsd, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.)
 }
 
 #' Simple numerical deformation estimates
