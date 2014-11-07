@@ -1,6 +1,7 @@
-library(deform)
 library(kook)
+library(plyr)
 library(TeachingDemos)
+library(deform)
 
 .x. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
 su <- surface_displacement(.x.*1e3, C.=1e13, z_src=0.7e3)
@@ -58,31 +59,32 @@ F3 <- function(){
   matplot(.x.km., zz2*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 }
 
+try(F3())
+
 F3t <- function(){
   #matplot(.time./yr, t(zz2t), type="l")
-  matplot(.x.km., zz2t, type="l", col="black")
+  matplot(.x.km., zz2t*1e6, type="l", col="black", main="Tilt")
 }
 
-#try(F3())
-#try(F3t())
-
+try(F3t())
 
 zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
 
 F4 <- function(){
   #matplot(.time./yr, t(zz3)*1e2, type="l")
-  matplot(.x.km., zz3*1e2, type="l", col="black")
+  matplot(.x.km., zz3*1e2, type="l", col="black", main="t.v. Fluid mass change")
 }
 
-#try(F4())
+try(F4())
 
-zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot., .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
+redo <- FALSE
+if (!exists("zzp") | redo) zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot., .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
 
 F5 <- function(do.log=FALSE){
   #matplot(.time./yr, t(zz3)*1e2, type="l")
   X<- zzp[,,length(.time.)]
   if (do.log) X <- log10(abs(X))
-  matplot(x=.x.km., X, col=NA)
+  matplot(x=.x.km., X, col=NA, main="t.v. Pore pressure")
   aaply(zzp, 3, .fun = function(X) {
     if (do.log) X <- log10(abs(X))
     matplot(x=.x.km., X, type="l", add=TRUE)
@@ -95,14 +97,17 @@ try(F5())
 
 
 F5c <- function(){
-  #matplot(.time./yr, t(zz3)*1e2, type="l")
-  #contour(x=.x.km., y=.z.km., zzp[,,length(.time.)], col=NA)
+  layout(matrix(seq_len(dim(zzp)[3]), nrow=1))
   aaply(zzp, 3, .fun = function(X) {
-    image(x=.x.km., y=.z.km., X, ylim=c(12,0), col = brewerRamp())
-    contour(x=.x.km., y=.z.km., X, ylim=c(12,0), add = TRUE)
+    image(x=.x.km., y=.z.km., X, ylim=c(6,0), col = brewerRamp())
+    contour(x=.x.km., y=.z.km., X, ylim=c(6,0), add = TRUE)
+    abline(v=.TwoSources.x./1e3, col="grey", lwd=2)
+    abline(h=(.D.+c(-1*.t.,.t.)/2)/1e3, col="grey", lwd=2)
     return("x")
     })
+  
   invisible()
+  layout(matrix(1))
 }
 
-#try(F5c())
+try(F5c())

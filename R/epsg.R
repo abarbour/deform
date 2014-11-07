@@ -72,8 +72,8 @@ getEPSG <- function(ref.id=4326, verbose=TRUE, agency=NULL){
   #http://spatialreference.org/ref/epsg/4326/proj4/
   ref.url <- sprintf("%s/%s/proj4/", agency.root(agency), ref.id)
   if (verbose) message(ref.url)
-  stopifnot(RCurl::url.exists(ref.url))
-  prj <- RCurl::getURL(ref.url)
+  stopifnot(url.exists(ref.url))
+  prj <- getURL(ref.url)
   return(prj)
 }
 
