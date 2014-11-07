@@ -1,4 +1,5 @@
 library(deform)
+library(kook)
 library(TeachingDemos)
 
 .x. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
@@ -33,6 +34,7 @@ F2 <- function(){
 # Figs 7,8
 mxx <- 50
 .x.km. <- sort(unique(c((-1*mxx):-3, seq(-2.90,2.90,by=0.1), 3:mxx)))
+.z.km. <- sort(unique(c(seq(0,3,by=0.25),seq(3,12,by=0.75))))
 yr <- 365*86400
 .time. <- seq(2,10,by=2)*10*yr
 .Vdot. <- 2e6/yr # volume rate m^3/yr to m^3/s
@@ -41,9 +43,12 @@ yr <- 365*86400
 .B. <- 0.6 # Skemptons coeff
 .c. <- 0.1 # hydraulic diffusivity m^2/s
 .Sources.x. <- 1e3*c(0)
+.TwoSources.x. <- 1e3*c(0,20)
 # for mass computation
 .t. <- 100 # thickness
 .phi. <- 0.2 #porosity
+# for pressure computation
+.mu. <- 5.6 #GPa -- shear modulus
 
 zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
 zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
@@ -52,6 +57,15 @@ F3 <- function(){
   #matplot(.time./yr, t(zz2)*1e3, type="l", main="Subsidence, mm, Segall 1985, Fig 8B")
   matplot(.x.km., zz2*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 }
+
+F3t <- function(){
+  #matplot(.time./yr, t(zz2t), type="l")
+  matplot(.x.km., zz2t, type="l", col="black")
+}
+
+#try(F3())
+#try(F3t())
+
 
 zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
 
@@ -62,12 +76,33 @@ F4 <- function(){
 
 #try(F4())
 
+zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot., .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
 
-F3t <- function(){
-  #matplot(.time./yr, t(zz2t), type="l")
-  matplot(.x.km., zz2t, type="l", col="black")
+F5 <- function(do.log=FALSE){
+  #matplot(.time./yr, t(zz3)*1e2, type="l")
+  X<- zzp[,,length(.time.)]
+  if (do.log) X <- log10(abs(X))
+  matplot(x=.x.km., X, col=NA)
+  aaply(zzp, 3, .fun = function(X) {
+    if (do.log) X <- log10(abs(X))
+    matplot(x=.x.km., X, type="l", add=TRUE)
+    return("x")
+    })
+  invisible()
 }
 
-try(F3())
-#try(F3t())
+try(F5())
 
+
+F5c <- function(){
+  #matplot(.time./yr, t(zz3)*1e2, type="l")
+  #contour(x=.x.km., y=.z.km., zzp[,,length(.time.)], col=NA)
+  aaply(zzp, 3, .fun = function(X) {
+    image(x=.x.km., y=.z.km., X, ylim=c(12,0), col = brewerRamp())
+    contour(x=.x.km., y=.z.km., X, ylim=c(12,0), add = TRUE)
+    return("x")
+    })
+  invisible()
+}
+
+#try(F5c())

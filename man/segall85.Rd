@@ -4,6 +4,7 @@
 \alias{segall85}
 \alias{surface_displacement}
 \alias{timevarying_fluidmass}
+\alias{timevarying_porepressure}
 \alias{timevarying_surface_displacement}
 \title{Surface deformation associated with fluid withdrawl}
 \usage{
@@ -17,6 +18,10 @@ timevarying_fluidmass(x, Time, Vdot., L., t., HD., phi.)
 
 timevarying_surface_displacement(x, Time, Vdot., B., L., D., HD., nuu. = 1/3,
   Pt.Sources.x = 0, x.lim = 2 * round(max(abs(x), na.rm = TRUE)))
+
+timevarying_porepressure(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa.,
+  nu. = 1/4, nuu. = 1/3, Pt.Sources.x = 0, x.lim = round(max(abs(x),
+  na.rm = TRUE))/1)
 }
 \description{
 Surface deformation associated with fluid withdrawl

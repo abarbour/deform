@@ -88,6 +88,68 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
   apply(X=matrix(Time), MARGIN=1, FUN=.FUN, Xi.sources=Sources)
 }
 
+#' @rdname segall85
+#' @export
+timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim=round(max(abs(x),na.rm=TRUE))/1){
+  # Time varying p.p. associated with fluid extraction
+  # segall85 eq 28
+  #
+  sc <- 1e9
+  mu. <- sc * mu.gpa.
+  #
+  Sources <- matrix(Pt.Sources.x, ncol=1)
+  #
+  .FUN <- function(ti, zi=0, Xi.sources){
+    message(paste("Time:", ti/365/86400, "years"))
+    # time varying component (scaling)
+    tvar1 <- -2 * mu. * (1 + nuu.)^2 * B.^2 * Vdot. * sqrt(ti / HD.) / (9 * L. * t.)
+    #
+    # Function that returns the integral value at
+    # a position Xi away from the source at dXi
+    .fun <- function(Xi., dXi.=0, X.=x, Z.=0, ti.=ti){
+      # from the spatio-temporal component
+      ti.d <- Xi.^2 / (4 * HD. * ti.)
+      C1 <- ierfc2(sqrt(ti.d))
+      #
+      xmxi <- (X. - Xi. - dXi.)^2
+      zpd <- (Z. + D.)
+      C2A <- zpd / (zpd^2 + xmxi^2)
+      zpdt <- zpd + t.
+      C2B <- -1 * zpdt / (zpdt^2 + xmxi^2)
+      sc * (C2A + C2B) * C1
+    }
+    #
+    # function used to integrate over Xi at different sources
+    .xi.integ2D <- function(dxi, ti.=ti){
+      message(paste("\t2D integration of source at:", dxi/1e3, "km"))
+      grd <- as.matrix(expand.grid(VarX=x, VarZ=z))
+      ires <- apply(grd, 1, FUN=function(xxzz){
+        #message(paste(xxzz, collapse="//"))
+        zi <- try(integrate(.fun, -1*x.lim, x.lim, X.=xxzz[1], Z.=xxzz[2], dXi.=dxi, subdivisions = 150L, rel.tol=.Machine$double.eps^0.5))
+        if (inherits(zi,"try-error")){
+          #message(paste("\t==== ==== ====>  shrink integration limits to below",x.lim))
+          message(paste(xxzz, collapse=" x // z "))
+          NA
+        } else {
+          #message(paste("integration",zi$message))
+          ti.d <- xxzz[1]^2 / (4 * HD. * ti.)
+          C1 <- (1 - 2*nu.) * ierfc2(sqrt(ti.d)) / ((nuu. - nu.) * (1 - 2*nuu.))
+          C2 <- -2/(pi * (1 - nuu.))
+          C1 + C2 * zi$value
+        }
+      })
+      matrix(ires, ncol=length(z), byrow = FALSE)
+    }
+    # superpostion of all sources
+    xvar.t2s <- apply(X = abind(lapply(X = Sources, FUN = .xi.integ2D), along=3), MARGIN = c(1,2), FUN = sum, na.rm = TRUE)
+    # combine and return
+    res <- tvar1 * xvar.t2s
+    return(-1*res/sc)
+  }
+  # apply FUN through time
+  abind(lapply(X = Time, FUN = .FUN, Xi.sources=Sources), along=3)
+}
+
 #' Simple numerical deformation estimates
 #' @name Simple-deformation
 #' @param x numeric; the spatial vector in real units (not an index!)
