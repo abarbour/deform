@@ -16,7 +16,7 @@ surface_displacement(x, C. = 1, mu. = 1e+09, ...)
 timevarying_fluidmass(x, Time, Vdot., L., t., HD., phi.)
 
 timevarying_surface_displacement(x, Time, Vdot., B., L., D., HD., nuu. = 1/3,
-  x_src. = 0)
+  Pt.Sources.x = 0, x.lim = 2 * round(max(abs(x), na.rm = TRUE)))
 }
 \description{
 Surface deformation associated with fluid withdrawl

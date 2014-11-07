@@ -9,4 +9,7 @@ crustal deformation tools in R.}
 The \code{deform} package:
 crustal deformation tools in R.
 }
+\seealso{
+\code{\link{segall85}} for deformation associated with fluid extraction
+}
 

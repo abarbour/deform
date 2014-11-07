@@ -19,7 +19,7 @@ F2 <- function(){
   lines(uz ~ x, su, type="l", pch=16, cex=1, lwd=2, col="grey"); text(2e3, -5, "U_z")
   lines(ux ~ x, su, type="l", pch=16, col="blue", cex=1, lwd=2); text(0, 6, "U_x", col="blue", pos=2)
   points(uxz.mag ~ x, su, col="red", pch=16, cex=0.6); text(-3e3, 8, "|U_xz|", col="red")
-  try(my.symbols(x=su$x, y=su$uxz.mag, 
+  suppressWarnings(my.symbols(x=su$x, y=su$uxz.mag, 
              ms.arrows, 
              #r=(su$uxz.mag),
              adj=0, col="red", inches=0.8, add=TRUE, angle=su$uxz.ang*pi/180))
@@ -30,66 +30,44 @@ F2 <- function(){
 }
 #F2()
 
-# Fig 8
-#y. <- 0:10
-.time. <- c(0.1,0.5,1:5)
-.Vdot. <- 2e6
-.D. <- 1e3
-.L. <- 10e3
-.B. <- 0.6
-.c. <- 0.1
-.t. <- 100
+# Figs 7,8
+mxx <- 50
+.x.km. <- sort(unique(c((-1*mxx):-3, seq(-2.90,2.90,by=0.1), 3:mxx)))
+yr <- 365*86400
+.time. <- seq(2,10,by=2)*10*yr
+.Vdot. <- 2e6/yr # volume rate m^3/yr to m^3/s
+.D. <- 1e3 # depth of burial
+.L. <- 10e3 # length (Vdot/L is the average rate of fluid extraction per unit length)
+.B. <- 0.6 # Skemptons coeff
+.c. <- 0.1 # hydraulic diffusivity m^2/s
+.Sources.x. <- 1e3*c(0)
+# for mass computation
+.t. <- 100 # thickness
+.phi. <- 0.2 #porosity
 
-ux_XI <- Vectorize(function(Xi.source, ..x, ..t, ..D, ..HD){  
-  #print(paste(Xi.source, .x, .t, .D, .HD))
-  Time.src <- sqrt(Xi.source^2 / 4 / ..HD / ..t)
-  ierfc2(Time.src) / (..D^2 + (..x - Xi.source)^2)
-})
-
-xFUN <- function(Xi, .x=10, .t=30000e5, .D=100, .HD=1){
-  ux_XI(Xi, .x, .t, .D, .HD)
-}
-
-curve(xFUN, -20, 20)
-
-timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nuu.=1/3, source.limits=c(0,0)){
-  # segall85 eq 26
-  # at each time slice, calculate a profile
-  .tvsd <- function(xi, ti, .Vdot, .B, .L, .D, .HD, .nuu, .source.limits){
-    #
-    #
-    #print(paste(xi,ti))
-    #
-    mod <- 2 * .B * (1 + .nuu) * .Vdot * .D * sqrt(ti / .HD) / (3 * pi * .L)
-    #
-    slim <- range(source.limits, na.rm=TRUE)
-    #print(slim)
-    Errint <- integrate(ux_XI, slim[1], slim[2], ..x=xi, ..t=ti, ..D=.D, ..HD=.HD)
-    sc <- Errint$value
-    #
-    return(mod * sc)
-  }
-  #t(apply(X=matrix(x), MARGIN=1, FUN=.tvsd, .t=Time, .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .x_src=x_src.))
-  outer(X=x, Y=Time, FUN=Vectorize(.tvsd), .Vdot=Vdot., .B=B., .L=L., .D=D., .HD=HD., .nuu=nuu., .source.limits=source.limits)
-}
-
-zz2 <- timevarying_surface_displacement(.x., .time., .Vdot., .B., .L., .D., .c., source.limits=c(-10,10))
-head(zz2)
-
-zz3 <- timevarying_fluidmass(.x., .time., .Vdot., .L., .t., .c., phi=0.1)
-
-F4 <- function(){
-  matplot(.x., zz3, type="l")
-  matplot(.time., t(zz3), type="l")
-}
-
-try(F4())
-
+zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
+zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
 
 F3 <- function(){
-  matplot(.x., zz2, type="l")
-  matplot(.time., t(zz2), type="l")
+  #matplot(.time./yr, t(zz2)*1e3, type="l", main="Subsidence, mm, Segall 1985, Fig 8B")
+  matplot(.x.km., zz2*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
+}
+
+zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
+
+F4 <- function(){
+  #matplot(.time./yr, t(zz3)*1e2, type="l")
+  matplot(.x.km., zz3*1e2, type="l", col="black")
+}
+
+#try(F4())
+
+
+F3t <- function(){
+  #matplot(.time./yr, t(zz2t), type="l")
+  matplot(.x.km., zz2t, type="l", col="black")
 }
 
 try(F3())
+#try(F3t())
 

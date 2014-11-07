@@ -6,4 +6,6 @@
 #' @useDynLib deform
 #' @exportPattern "^[[:alpha:]]+"
 #' @importFrom Rcpp evalCpp
+#' 
+#' @seealso \code{\link{segall85}} for deformation associated with fluid extraction
 NULL
