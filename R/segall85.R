@@ -46,6 +46,9 @@ surface_displacement <- function(x, C.=1, mu.=1e9, ...){
 #' @rdname segall85
 #' @export
 timevarying_fluidmass <- function(x, Time, Vdot., L., t., HD., phi.){
+  #
+  # [ ] account for multiple Vdot.
+  #
   FUN <- function(ti){
     -1 * Vdot. * sqrt(ti / HD.) * ierfc2(sqrt(x^2 / (4 * HD. * ti))) / (L. * t. * phi.)
   }
@@ -61,8 +64,6 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
   Sources <- matrix(Pt.Sources.x, ncol=1)
   #
   .FUN <- function(ti, Xi.sources){
-    # time varying component (scaling)
-    tvar <- -2 * B. * (1 + nuu.) * Vdot. * D. * sqrt(ti / HD.) / (3 * pi * L.)
     # sum over source contributions
     .fun <- function(Xi., dXi.=0, X.=x, ti.=ti){
       # from the spatio-temporal component
@@ -78,10 +79,24 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
                   rel.tol=.Machine$double.eps^0.35)$value
       })
     }
+    srci <- seq_along(Xi.sources)
     xvar.t2 <- apply(Xi.sources, MARGIN=1, FUN=.xi.integ)
-    xvar.t2s <- rowSums(xvar.t2)
+    # time varying component (scaling)
+    tvar <- -2 * B. * (1 + nuu.) * Vdot. * D. * sqrt(ti / HD.) / (3 * pi * L.)
+    #
+    sc <- if (length(tvar) == ncol(xvar.t2)){
+      # accounts for multiple values of Vdot.
+      matrix(rep(tvar, nrow(xvar.t2)), ncol=ncol(xvar.t2), byrow = TRUE)
+    } else {
+      if (length(tvar)==1){
+        tvar
+      } else {
+        warning("Number of values for Vdot is not 1, or not equal to the number of sources.\nUsed first value.")
+        tvar[1]
+      }
+    }
     # combine and return
-    res <- tvar * xvar.t2s
+    res <- rowSums(xvar.t2 * sc)
     return(res)
   }
   # apply FUN through time
@@ -93,6 +108,8 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
 timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim=round(max(abs(x),na.rm=TRUE))/1){
   # Time varying p.p. associated with fluid extraction
   # segall85 eq 28
+  #
+  # [ ] account for multiple Vdot.
   #
   sc <- 1e9
   mu. <- sc * mu.gpa.
@@ -151,6 +168,21 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
 }
 
 #' Simple numerical deformation estimates
+#' @details
+#' \code{\link{Uniaxial_extension}} calculates the component of
+#' strain associated with deformation along a single axis.
+#' For example, the change in the Eastward displacements (or rates)
+#' in the East direction.
+#' 
+#' \code{\link{Tilt}} calculates the tilt field associates with
+#' spatial variations in vertical positions (or rates of change);
+#' the sign convention used is such that
+#' a ball placed on the x-y plane would roll in the direction of the
+#' tilt vector.  Or, in other words, the tilt vector is the direction a
+#' plumb bob would move.
+#' 
+#' @note \code{\link{Tilt}} has not been well-tested for two-dimensional
+#' results!
 #' @name Simple-deformation
 #' @param x numeric; the spatial vector in real units (not an index!)
 #' @param X numeric; the quantity varying in the direction of \code{x}
@@ -195,9 +227,13 @@ Tilt <- function(x, y=NULL, z, left=TRUE){
     deriv2 <- diff(z)/diff(x)
     .setleft(deriv2, left)
   }
-  tlt <- dzdx + dzdy
-  #ang <- 90 - tlt * 180 /pi
-  data.frame(x=x, ztilt = tlt)
+  # reverse sign so that the sign convention
+  # is such that a positive tilt corresponds to
+  # the direction a plumb bob would head, or
+  # the direction a ball on the surface would roll
+  tlt <- -1*(dzdx + dzdy)
+  ang <- atan2(dzdy, dzdx) * 180/pi 
+  data.frame(x=x, ztilt = tlt, xy.direction=ang)
 }
 #' @rdname Simple-deformation
 #' @export

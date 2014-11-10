@@ -18,16 +18,20 @@ F1 <- function(){
 F2 <- function(){
   plot(uz ~ x, su, col=NA, ylim=c(-1,1)*20, xlim=c(-1,1)*7*1e3)
   abline(v=0,h=0,col="grey")
-  lines(uz ~ x, su, type="l", pch=16, cex=1, lwd=2, col="grey"); text(2e3, -5, "U_z")
-  lines(ux ~ x, su, type="l", pch=16, col="blue", cex=1, lwd=2); text(0, 6, "U_x", col="blue", pos=2)
-  points(uxz.mag ~ x, su, col="red", pch=16, cex=0.6); text(-3e3, 8, "|U_xz|", col="red")
+  lines(uz ~ x, su, type="l", pch=16, cex=1, lwd=2, col="grey")
+  text(2e3, -5, expression(U[Z]))
+  lines(ux ~ x, su, type="l", pch=16, col="blue", cex=1, lwd=2)
+  text(0, 6, expression(U[X]), col="blue", pos=2)
+  points(uxz.mag ~ x, su, col="red", pch=16, cex=0.6)
+  text(-3e3, 8, expression(abs(U[XZ])), col="red")
   suppressWarnings(my.symbols(x=su$x, y=su$uxz.mag, 
              ms.arrows, 
-             #r=(su$uxz.mag),
              adj=0, col="red", inches=0.8, add=TRUE, angle=su$uxz.ang*pi/180))
-  lines(ztilt*1e2 ~ x, sut, type="h", lwd=5, col="lightgreen"); text(1.1e3, 2, "Tilt = 2*dUz/dx", col="dark green", pos=4)
+  lines(ztilt*1e2 ~ x, sut, type="h", lwd=5, col="lightgreen")
+  text(-1.1e3, 2, expression("Tilt" == 2%*%dU[Z]/dx), col="dark green", pos=2)
   lines(ztilt*1e2 ~ x, sut, lwd=3,col="dark green")
-  lines(dXdx*1e2 ~ x, sue, type="h", lwd=4, col="grey60"); text(-1e2, 2, "Eee = dUx/dx", pos=2)
+  lines(dXdx*1e2 ~ x, sue, type="h", lwd=4, col="grey60")
+  text(5e2, 2, expression(E[ee] == dU[X]/dx), pos=4)
   lines(dXdx*1e2 ~ x, sue, lwd=3)
 }
 #F2()
@@ -51,22 +55,29 @@ yr <- 365*86400
 # for pressure computation
 .mu. <- 5.6 #GPa -- shear modulus
 
-zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
-zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
-
 F3 <- function(){
   #matplot(.time./yr, t(zz2)*1e3, type="l", main="Subsidence, mm, Segall 1985, Fig 8B")
   matplot(.x.km., zz2*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 }
 
+# single source
+zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
+
 try(F3())
+
+# multiple sources
+zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., c(1,0.5)*.Vdot., .B., .L., .D., .c., Pt.Sources.x=.TwoSources.x.)
+
+try(F3())
+
+zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
 
 F3t <- function(){
   #matplot(.time./yr, t(zz2t), type="l")
   matplot(.x.km., zz2t*1e6, type="l", col="black", main="Tilt")
 }
 
-try(F3t())
+#try(F3t())
 
 zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
 
@@ -75,7 +86,7 @@ F4 <- function(){
   matplot(.x.km., zz3*1e2, type="l", col="black", main="t.v. Fluid mass change")
 }
 
-try(F4())
+#try(F4())
 
 redo <- FALSE
 if (!exists("zzp") | redo) zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot., .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
@@ -93,8 +104,7 @@ F5 <- function(do.log=FALSE){
   invisible()
 }
 
-try(F5())
-
+#try(F5())
 
 F5c <- function(){
   layout(matrix(seq_len(dim(zzp)[3]), nrow=1))
@@ -110,4 +120,4 @@ F5c <- function(){
   layout(matrix(1))
 }
 
-try(F5c())
+#try(F5c())

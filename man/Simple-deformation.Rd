@@ -26,6 +26,23 @@ Tilt(x, y = NULL, z, left = TRUE)
 \description{
 Simple numerical deformation estimates
 }
+\details{
+\code{\link{Uniaxial_extension}} calculates the component of
+strain associated with deformation along a single axis.
+For example, the change in the Eastward displacements (or rates)
+in the East direction.
+
+\code{\link{Tilt}} calculates the tilt field associates with
+spatial variations in vertical positions (or rates of change);
+the sign convention used is such that
+a ball placed on the x-y plane would roll in the direction of the
+tilt vector.  Or, in other words, the tilt vector is the direction a
+plumb bob would move.
+}
+\note{
+\code{\link{Tilt}} has not been well-tested for two-dimensional
+results!
+}
 \examples{
 # Some x values
 xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
