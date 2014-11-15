@@ -9,6 +9,9 @@
 #' plot(uz ~ x, su, type="b")
 #' }
 segall85 <- function(){
+  cat("
+This is just a placeholder function. See documentation (`?segall85`).
+      ")
 }
 
 #  spatial coordinates in segall
@@ -84,9 +87,10 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
     # time varying component (scaling)
     tvar <- -2 * B. * (1 + nuu.) * Vdot. * D. * sqrt(ti / HD.) / (3 * pi * L.)
     #
-    sc <- if (length(tvar) == ncol(xvar.t2)){
+    nctv2 <- ncol(xvar.t2)
+    sc <- if (length(tvar) == nctv2){
       # accounts for multiple values of Vdot.
-      matrix(rep(tvar, nrow(xvar.t2)), ncol=ncol(xvar.t2), byrow = TRUE)
+      matrix(rep(tvar, nrow(xvar.t2)), ncol=nctv2, byrow = TRUE)
     } else {
       if (length(tvar)==1){
         tvar
@@ -106,10 +110,9 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
 #' @rdname segall85
 #' @export
 timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim=round(max(abs(x),na.rm=TRUE))/1){
+  #
   # Time varying p.p. associated with fluid extraction
   # segall85 eq 28
-  #
-  # [ ] account for multiple Vdot.
   #
   sc <- 1e9
   mu. <- sc * mu.gpa.
@@ -118,8 +121,6 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
   #
   .FUN <- function(ti, zi=0, Xi.sources){
     message(paste("Time:", ti/365/86400, "years"))
-    # time varying component (scaling)
-    tvar1 <- -2 * mu. * (1 + nuu.)^2 * B.^2 * Vdot. * sqrt(ti / HD.) / (9 * L. * t.)
     #
     # Function that returns the integral value at
     # a position Xi away from the source at dXi
@@ -157,10 +158,29 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
       })
       matrix(ires, ncol=length(z), byrow = FALSE)
     }
+    # Array of depth slices for all sources
+    sourcePP <- abind(lapply(X = Sources, FUN = .xi.integ2D), along=3)
+    # time varying component (scaling)
+    tvar <- -2 * mu. * (1 + nuu.)^2 * B.^2 * Vdot. * sqrt(ti / HD.) / (9 * L. * t.)
+    #
+    nsrc <- length(Sources)
+    vsc <- if (length(tvar) == nsrc){
+      # accounts for multiple values of Vdot.
+      dsp <- dim(sourcePP)
+      #array(data = tvar, dim = dim(sourcePP))
+      abind(lapply(tvar, function(tv) array(tv, c(dsp[1:2],1))))
+    } else {
+      if (length(tvar)==1){
+        tvar
+      } else {
+        warning("Number of values for Vdot is not 1, or not equal to the number of sources.\nUsed first value.")
+        tvar[1]
+      }
+    }
+    # multiple source solution array by tvar (which will be an equal-size array is n_vdot == n_sources)
+    sourcePP <- vsc * sourcePP
     # superpostion of all sources
-    xvar.t2s <- apply(X = abind(lapply(X = Sources, FUN = .xi.integ2D), along=3), MARGIN = c(1,2), FUN = sum, na.rm = TRUE)
-    # combine and return
-    res <- tvar1 * xvar.t2s
+    res <- apply(X = sourcePP, MARGIN = c(1,2), FUN = sum, na.rm = TRUE)
     return(-1*res/sc)
   }
   # apply FUN through time
@@ -233,11 +253,12 @@ Tilt <- function(x, y=NULL, z, left=TRUE){
   # the direction a ball on the surface would roll
   tlt <- -1*(dzdx + dzdy)
   ang <- atan2(dzdy, dzdx) * 180/pi 
-  data.frame(x=x, ztilt = tlt, xy.direction=ang)
+  data.frame(x = x, ztilt = tlt, xy.direction = ang)
 }
 #' @rdname Simple-deformation
 #' @export
 .setleft <- function(x, left=TRUE){
+  x <- as.vector(x)
   if (left){
     c(NA, x)
   } else {

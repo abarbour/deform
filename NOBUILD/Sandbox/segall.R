@@ -13,7 +13,7 @@ F1 <- function(){
   plot(c(NA,diff(ux)/diff(x),NA) ~ c(NA,x), su, type="s")
   abline(v=0,h=0,col="grey") 
 }
-#F1()
+F1()
 
 F2 <- function(){
   plot(uz ~ x, su, col=NA, ylim=c(-1,1)*20, xlim=c(-1,1)*7*1e3)
@@ -34,7 +34,7 @@ F2 <- function(){
   text(5e2, 2, expression(E[ee] == dU[X]/dx), pos=4)
   lines(dXdx*1e2 ~ x, sue, lwd=3)
 }
-#F2()
+F2()
 
 # Figs 7,8
 mxx <- 50
@@ -77,7 +77,7 @@ F3t <- function(){
   matplot(.x.km., zz2t*1e6, type="l", col="black", main="Tilt")
 }
 
-#try(F3t())
+try(F3t())
 
 zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
 
@@ -86,10 +86,10 @@ F4 <- function(){
   matplot(.x.km., zz3*1e2, type="l", col="black", main="t.v. Fluid mass change")
 }
 
-#try(F4())
+try(F4())
 
 redo <- FALSE
-if (!exists("zzp") | redo) zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot., .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
+if (!exists("zzp") | redo) zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2), .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
 
 F5 <- function(do.log=FALSE){
   #matplot(.time./yr, t(zz3)*1e2, type="l")
@@ -120,4 +120,4 @@ F5c <- function(){
   layout(matrix(1))
 }
 
-#try(F5c())
+try(F5c())
