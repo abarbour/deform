@@ -7,7 +7,23 @@
 \usage{
 static(Mw, Distance.km, model = "w88")
 
-dynamic(Mw, Distance.km, km2deg = NULL, model = "aw14")
+dynamic(Mw, Distance.km, km2deg = NULL, model = "aw14",
+  strn.type = c("general", "areal", "diffext", "shear", "dil"))
+}
+\arguments{
+\item{Mw}{numeric; the moment magnitude of the earthquake}
+
+\item{Distance.km}{numeric; the epicentral distance, in kilometers}
+
+\item{km2deg}{numeric; specify the scaling coefficient used to
+convert the distance (in km) to degrees; this may be useful if,
+for example, the distance is already in degrees (then set it equal to 1)}
+
+\item{model}{character; the strain-scaling model to use; currently ignored
+because there are no alternatives}
+
+\item{strn.type}{character; the type of strain-scaling relationship to
+provide a prediction for}
 }
 \description{
 Predict the level of strain expected for magnitude and distance
