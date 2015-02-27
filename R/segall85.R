@@ -1,6 +1,8 @@
 #' Surface deformation associated with fluid withdrawl
 #' @name segall85
+#' @aliases segall
 #' @export
+#' @param help logical; load documentation for \code{\link{segall85}}
 #' @seealso \code{\link{Simple-deformation}}
 #' @examples
 #' \dontrun{
@@ -8,10 +10,11 @@
 #' su <- surface_displacement(x.*1e3, z_src=1e3)
 #' plot(uz ~ x, su, type="b")
 #' }
-segall85 <- function(){
+segall85 <- function(help=FALSE){
   cat("
 This is just a placeholder function. See documentation (`?segall85`).
       ")
+  if (help) ?segall85
 }
 
 #  spatial coordinates in segall
@@ -24,6 +27,10 @@ This is just a placeholder function. See documentation (`?segall85`).
 #  parameters:
 #   mu shear modulus
 #   C units of force, proportional to the source strength
+#' @param x numeric; spatial coordinate relative to extraction point
+#' @param C. numeric; units of force, proportional to source strength (e.g., extraction rate)
+#' @param mu. numeric; the shear modulus in Pascals
+#' @param ... additional arguments to \code{\link{.surface_g}}
 #' @rdname segall85
 #' @export
 surface_displacement <- function(x, C.=1, mu.=1e9, ...){
@@ -39,15 +46,24 @@ surface_displacement <- function(x, C.=1, mu.=1e9, ...){
 
 #' @rdname segall85
 #' @export
+#' @param x_src numeric; the horizontal distance from the source
+#' @param z_src numeric; the depth of the source below the surface
+#' @param nuu numeric; the 'undrained' Poisson's ratio (typically 1/3)
 .surface_g <- function(x=0, x_src=0, z_src=0, nuu=1/3){
   # segall85 C9
   gx <-  2*(1 - nuu)*(x - x_src)/(z_src^2 + (x - x_src)^2)
   gz <- -2*(1 - nuu)*z_src/(z_src^2 + (x - x_src)^2)
-  data.frame(x, gx, gz)
+  data.frame(x, gx, gz, xz=x/z_src)
 }
 
 #' @rdname segall85
 #' @export
+#' @param Time numeric; the time from xxx
+#' @param Vdot. numeric; the volumetric flow rate xxx
+#' @param L. numeric; the xxx
+#' @param t. numeric; the xxx
+#' @param HD. numeric; the xxx
+#' @param phi. numeric; the xxx
 timevarying_fluidmass <- function(x, Time, Vdot., L., t., HD., phi.){
   #
   # [ ] account for multiple Vdot.
@@ -60,9 +76,20 @@ timevarying_fluidmass <- function(x, Time, Vdot., L., t., HD., phi.){
 
 #' @rdname segall85
 #' @export
-timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nuu.=1/3, Pt.Sources.x=0, x.lim=2*round(max(abs(x),na.rm=TRUE))){
+#' @param B. numeric; the xxx
+#' @param D. numeric; the xxx
+#' @param Pt.Sources.x numeric; a vector of point-source locations in the x direction
+#' @param x.lim numeric; the limit of integration in both the positive and negative directions; if 
+#' missing this is based on the absolute maximum of \code{x}
+timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nuu.=1/3, Pt.Sources.x=0, x.lim){
   # Time varying deformation associated with fluid extraction
   # segall85 eq 26
+  #
+  x.lim <- if (missing(x.lim)){
+    2 * round(max(abs(x), na.rm=TRUE))
+  } else {
+    as.numeric(x.lim)
+  }
   #
   Sources <- matrix(Pt.Sources.x, ncol=1)
   #
@@ -109,10 +136,18 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
 
 #' @rdname segall85
 #' @export
-timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim=round(max(abs(x),na.rm=TRUE))/1){
+#' @param nu. numeric; the drained Poisson's ratio (typically 1/4)
+#' @param mu.gpa. numeric; the shear modulus in giga-Pascals (GPa)
+timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim){
   #
   # Time varying p.p. associated with fluid extraction
   # segall85 eq 28
+  #
+  x.lim <- if (missing(x.lim)){
+    round(max(abs(x), na.rm=TRUE))
+  } else {
+    as.numeric(x.lim)
+  }
   #
   sc <- 1e9
   mu. <- sc * mu.gpa.
@@ -188,6 +223,9 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
 }
 
 #' Simple numerical deformation estimates
+#' 
+#' Calculate tilts and extensions based on spatially varying displacements
+#' 
 #' @details
 #' \code{\link{Uniaxial_extension}} calculates the component of
 #' strain associated with deformation along a single axis.
@@ -201,6 +239,8 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
 #' tilt vector.  Or, in other words, the tilt vector is the direction a
 #' plumb bob would move.
 #' 
+#' Calculations are done with \code{\link{diff}}.
+#' 
 #' @note \code{\link{Tilt}} has not been well-tested for two-dimensional
 #' results!
 #' @name Simple-deformation
@@ -213,18 +253,33 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
 #' @seealso \code{\link{segall85}}
 #' @examples
 #' # Some x values
-#' xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.15), 3:7)))
+#' xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.05), 3:7)))
+#' set.seed(1221)
+#' xanis <- rnorm(length(xval.), sd = 10)
 #' 
 #' #  surface displacements
 #' su <- surface_displacement(xval.*1e3, C.=1e13, z_src=0.7e3)
 #' 
 #' # Vertical tilt -- assumes axial symmetry
 #' sut <- with(su, Tilt(x, z=uz))
-#' # including anisotropic effects
-#' sut <- with(su, Tilt(x, x=x+rnorm(length(x)), z=uz))
+#' #               -- including anisotropic effects
+#' sut.anis <- with(su, Tilt(x, x = sort(x + xanis), z=uz))
 #' 
-#' # Calculate strain in the 'x' direction
+#' plot(ztilt ~ x, sut.anis, col='blue', pch=16, cex=0.5)
+#' lines(ztilt ~ x, sut, lwd=2)
+#' 
+#' plot(ztilt ~ abs(x), sut.anis, col='blue', pch=ifelse(sign(x)==1,16,1), cex=0.5)
+#' lines(ztilt ~ abs(x), sut, lwd=2)
+#'  
+#' # Uniaxial strain in the 'x' direction
 #' sue <- with(su, Uniaxial_extension(x, X=ux))
+#' sue.anis <- with(su, Uniaxial_extension(sort(x + xanis), X=ux))
+#' 
+#' plot(dXdx ~ x, sue.anis, col='blue', pch=16, cex=0.5)
+#' lines(dXdx ~ x, sue, lwd=2)
+#'  
+#' plot(dXdx ~ abs(x), sue.anis, col='blue', pch=ifelse(sign(x)==1,16,1), cex=0.5)
+#' lines(dXdx ~ abs(x), sue, lwd=2)
 #' 
 #' # see how the 'left' argument affects things:
 #' .setleft(1,TRUE) # NA  1
