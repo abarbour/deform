@@ -11,9 +11,7 @@
 #' plot(uz ~ x, su, type="b")
 #' }
 segall85 <- function(help=FALSE){
-  cat("
-This is just a placeholder function. See documentation (`?segall85`).
-      ")
+  cat("\nThis function is simply a placeholder. See the documentation ( `?segall85` ).\n")
   if (help) ?segall85
 }
 
