@@ -1,3 +1,4 @@
+
 #' Error functions
 #' @param x numeric;
 #' @export
