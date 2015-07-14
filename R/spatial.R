@@ -131,13 +131,13 @@ D_project <- function(Df, coords=names(Df)[1:2], p4, p4old, verbose=TRUE, ...){
   # proj4 string
   if (missing(p4)) p4 <- getEPSG(verbose=verbose)
   if (missing(p4old)) p4old <- p4
-  eprj <- CRS(p4)
+  eprj <- sp::CRS(p4)
   stopifnot(exists("eprj"))
   ##
-  coordinates(Df) <- coords
-  proj4string(Df) <- p4old
+  sp::coordinates(Df) <- coords
+  sp::proj4string(Df) <- p4old
   #
-  toret <- try(elide(spTransform(Df, CRSobj=eprj), ...))
+  toret <- try(maptools::elide(sp::spTransform(Df, CRSobj=eprj), ...))
   stopifnot(!inherits(toret,"try-error"))
   return(toret)
 }
