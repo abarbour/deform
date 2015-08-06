@@ -3,6 +3,7 @@
 \name{segall85}
 \alias{.surface_g}
 \alias{segall}
+\alias{segall1985}
 \alias{segall85}
 \alias{surface_displacement}
 \alias{timevarying_fluidmass}

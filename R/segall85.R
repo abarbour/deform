@@ -1,6 +1,6 @@
 #' Surface deformation associated with fluid withdrawl
 #' @name segall85
-#' @aliases segall
+#' @aliases segall segall1985
 #' @export
 #' @param help logical; load documentation for \code{\link{segall85}}
 #' @seealso \code{\link{Simple-deformation}}
