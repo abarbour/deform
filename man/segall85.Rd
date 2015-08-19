@@ -34,7 +34,7 @@ timevarying_porepressure(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa.,
 
 \item{mu.}{numeric; the shear modulus in Pascals}
 
-\item{...}{additional arguments to \code{\link{.surface_g}}}
+\item{...}{additional arguments passed to \code{\link{.surface_g}}}
 
 \item{x_src}{numeric; the horizontal distance from the source}
 

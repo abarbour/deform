@@ -115,13 +115,13 @@ segall85 <- function(help=FALSE){
 #' @param x numeric; spatial coordinate relative to extraction point
 #' @param C. numeric; units of force, proportional to source strength (e.g., extraction rate)
 #' @param mu. numeric; the shear modulus in Pascals
-#' @param ... additional arguments to \code{\link{.surface_g}}
+#' @param ... additional arguments passed to \code{\link{.surface_g}}
 #' @rdname segall85
 #' @export
 surface_displacement <- function(x, C.=1, mu.=1e9, ...){
   sg <- .surface_g(x, ...)
   c. <- C./mu.
-  sg <- mutate(sg,
+  sg <- plyr::mutate(sg,
                ux = gx * c.,
                uz = gz * c.,
                uxz.mag = sqrt(ux^2 + uz^2),
