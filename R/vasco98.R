@@ -1,8 +1,11 @@
 #' Surface deformation associated with fluid withdrawl: an alternative formulation
-#' @name vasco88
-#' @aliases vasco1988
+#' @name vasco98
+#' @aliases vasco1998
 #' @export
-#' @param help logical; load documentation for \code{\link{vasco88}}
+#' @param help logical; load documentation for \code{\link{vasco98}}
+#' @references Vasco, D., et al. (1998), Monitoring of Fluid Injection and 
+#' Soil Consolidation Using Surface Tilt Measurements,
+#' \url{http://ascelibrary.org/doi/abs/10.1061/(ASCE)1090-0241(1998)124:1(29)}
 #' @seealso \code{\link{segall85}}, or \code{\link{segall89}}; \code{\link{Simple-deformation}}
 #' @export
 #' @examples
@@ -11,22 +14,22 @@
 #' r.m <- r*1e3
 #' xx <- surface_displacement_point(r.m, depth=2e3, delV.=1e7)
 #' plot(uz ~ x, xx, type='l')
-vasco88 <- function(){
-  cat("\nThis function is simply a placeholder. See the documentation ( `?vasco88` ).\n")
-  if (help) ?vasco88
+vasco98 <- function(){
+  cat("\nThis function is simply a placeholder. See the documentation ( `?vasco98` ).\n")
+  if (help) ?vasco98
 }
 
-#' @rdname vasco88
+#' @rdname vasco98
 #' @export
 .surface_g_pt <- function(x=0, x_src=0, z_src=0, nuu=1/3){
-  # vasco88 11
+  # vasco98 11
   sc <- (1 + nuu)/(3*pi)
   xrel <- (x - x_src)
   g <- sc * xrel / (xrel^2 + z_src^2)**(3/2)
   data.frame(x, g, xz = x/z_src)
 }
 
-#' @rdname vasco88
+#' @rdname vasco98
 #' @export
 #' @inheritParams surface_displacement_reservoir
 #' @param depth numeric; the depth below the surface to the source
