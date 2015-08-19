@@ -47,15 +47,16 @@ surface_displacement_point <- function(x, depth, delV., B.=1, rho_f.=1000, tol, 
   mxsc <- 15 # this many times the x/z distance
   xcalc <- depth * seq.int(from = -1* mxsc * mx, to = mxsc * mx, by = tol)
   # Calculate point source response
-  sgcalc <- .surface_g_pt(xcalc, z_src = depth, ...)
+  sgcalc <- deform::.surface_g_pt(xcalc, z_src = depth, ...)
   # Calculate response function
   ix <- sgcalc$x
   iy <- sgcalc$g
   n <- length(ix)
-  ih  <- ix[2] - ix[1]
+  stopifnot(length(n) < 2)
+  ih <- (ix[2] - ix[1])
   ca <- (iy[2] - iy[1]) / ih
   cb <- (iy[n] - iy[n - 1]) / ih
-  Gfun <- approxfun(ix, pracma::cumtrapz(ix, iy) - (cb - ca) * ih^2/12)
+  Gfun <- stats::approxfun(ix, pracma::cumtrapz(ix, iy) - (cb - ca) * ih^2/12)
   # Use interpolation function to resample integrated response function
   g <- Gfun(x)
   C. <- B. * delV. / rho_f.
