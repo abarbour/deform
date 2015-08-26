@@ -5,7 +5,7 @@
 \alias{segall1989}
 \alias{segall89}
 \alias{surface_displacement_reservoir}
-\title{Surface deformation associated with fluid withdrawl from a symmetric, rectangular reservoir}
+\title{Surface deformation associated with fluid withdrawl from a disk-shaped reservoir}
 \usage{
 segall89(help = FALSE)
 
@@ -37,7 +37,7 @@ surface_displacement_reservoir(x, depth = 1, halfwidth = depth,
 \item{...}{additional parameters (currently unused)}
 }
 \description{
-Surface deformation associated with fluid withdrawl from a symmetric, rectangular reservoir
+Surface deformation associated with fluid withdrawl from a disk-shaped reservoir
 }
 \examples{
 # Reproduce Figure 5 from Segall (1989)

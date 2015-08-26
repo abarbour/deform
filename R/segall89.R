@@ -1,4 +1,4 @@
-#' Surface deformation associated with fluid withdrawl from a symmetric, rectangular reservoir
+#' Surface deformation associated with fluid withdrawl from a disk-shaped reservoir
 #' @name segall89
 #' @aliases segall1989
 #' @export

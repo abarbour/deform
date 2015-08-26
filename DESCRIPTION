@@ -1,15 +1,15 @@
 Package: deform
 Type: Package
 Title: Crustal deformation modeling tools in R
-Version: 0.0-8.9999
-Date: 2015-08-19
+Version: 0.0-9.0001
+Date: 2015-08-26
 Author: Andrew J. Barbour; some of these tools were
     adapted from Matlab(tm) codes by Brendan Crowell (UW),
     and Francois Beauducel (IPGP).
 Maintainer: A.J.Barbour <andy.barbour@gmail.com>
 Description: Crustal deformation modeling tools.  Currently this
     code supports calculation of surface deformation associated with
-    (1) a depleting reservoir using Segall's models, and
+    (1) a depleting reservoir using Geertsma's model or Segall's models, and
     (2) a spherical volume source using a Mogi's model.
 License: GPL
 Depends:

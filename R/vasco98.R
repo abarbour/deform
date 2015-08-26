@@ -25,6 +25,7 @@ vasco98 <- function(){
   # vasco98 11
   sc <- (1 + nuu)/(3*pi)
   xrel <- (x - x_src)
+  # double-check:
   g <- sc * xrel / (xrel^2 + z_src^2)**(3/2)
   data.frame(x, g, xz = x/z_src)
 }
