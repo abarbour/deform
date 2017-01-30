@@ -1,3 +1,48 @@
+#' Transform cartesian coordinates to polar
+#' @param x numeric vector, or numeric matrix (see \code{y})
+#' @param y numeric vector; if missing, then \code{x} must have at least
+#' two columns: the first to represent \code{x} and the second to represent \code{y}
+#' @param z numeric vector
+#' @param dist.type character; the type of distance calculation
+#' @param radians logical; should the output angle be in radians? (\code{FALSE} returns in degrees)
+#' @author modified from function in beadarrayMSV
+#' @export
+#' @examples
+#' 
+#' cart2pol(1:10, 1:10)
+#' all.equal(cart2pol(1:10, 1:10), cart2pol(cbind(1:10, 1:10)))
+#' 
+#' # Change radius computation
+#' cart2pol(1:10, 1:10, 1:10) # assumes 'euclidean'
+#' cart2pol(1:10, 1:10, 1:10, 'manhattan')
+#' 
+#' # use degrees
+#' cart2pol(1:10, 1:10, radians=FALSE)
+#' 
+cart2pol <- function(x, y, z = NULL, dist.type = c('euclidean','manhattan'), radians=TRUE){
+  pol <- list()
+  dist.type <- match.arg(dist.type)
+  if (missing(y)){
+    X <- as.matrix(x)
+    stopifnot(ncol(X) >= 2)
+    y <- X[,2]
+    x <- X[,1]
+  }
+  x <- as.vector(x)
+  y <- as.vector(y)
+  r. <- switch(dist.type,
+         euclidean = sqrt(x^2 + y^2),
+         manhattan = x + y
+  )
+  th. <- atan2(y, x)
+  if (!radians) th. <- th. * 180 / pi
+  rth <- cbind(Theta = th., Radius = r.)
+  if (!is.null(z)){
+    rth <- cbind(rth, Z = as.vector(z))
+  }
+  return(rth)
+}
+
 #' Functions to work with EPSG projection specifications
 #' @name epsg
 #' @aliases EPSG
@@ -86,14 +131,13 @@ D_project <- function(Df, coords=names(Df)[1:2], p4, p4old, verbose=TRUE, ...){
   # proj4 string
   if (missing(p4)) p4 <- getEPSG(verbose=verbose)
   if (missing(p4old)) p4old <- p4
-  eprj <- CRS(p4)
+  eprj <- sp::CRS(p4)
   stopifnot(exists("eprj"))
   ##
-  coordinates(Df) <- coords
-  proj4string(Df) <- p4old
+  sp::coordinates(Df) <- coords
+  sp::proj4string(Df) <- p4old
   #
-  toret <- try(elide(spTransform(Df, CRSobj=eprj), ...))
+  toret <- try(maptools::elide(sp::spTransform(Df, CRSobj=eprj), ...))
   stopifnot(!inherits(toret,"try-error"))
   return(toret)
 }
-##

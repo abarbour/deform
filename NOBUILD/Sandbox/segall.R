@@ -55,13 +55,13 @@ yr <- 365*86400
 # for pressure computation
 .mu. <- 5.6 #GPa -- shear modulus
 
+# single source
+zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
+
 F3 <- function(){
   #matplot(.time./yr, t(zz2)*1e3, type="l", main="Subsidence, mm, Segall 1985, Fig 8B")
   matplot(.x.km., zz2*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 }
-
-# single source
-zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
 
 try(F3())
 
