@@ -12,4 +12,3 @@ rigid_hydraulic_diffusivity(k., eta., phi., Beta.)
 \description{
 Calculate hydraulic diffusivity of a fluid saturated medium
 }
-

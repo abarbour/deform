@@ -38,4 +38,3 @@ cart2pol(1:10, 1:10, radians=FALSE)
 \author{
 modified from function in beadarrayMSV
 }
-

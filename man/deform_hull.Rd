@@ -36,4 +36,3 @@ deform_hull(hull, out.by=2, plot=TRUE)
 \author{
 A.J. Barbour
 }
-

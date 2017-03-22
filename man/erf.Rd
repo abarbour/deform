@@ -21,4 +21,3 @@ ierfc(x)
 \description{
 Error functions
 }
-
