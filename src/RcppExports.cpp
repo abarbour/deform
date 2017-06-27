@@ -15,3 +15,13 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"deform_rcpp_hello_world", (DL_FUNC) &deform_rcpp_hello_world, 0},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_deform(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

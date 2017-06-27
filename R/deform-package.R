@@ -3,11 +3,10 @@
 #' @name deform
 #' @docType package
 #' 
-#' @useDynLib deform
+# @useDynLib deform
+# @exportPattern "^[[:alpha:]]+"
 #' 
-#' @exportPattern "^[[:alpha:]]+"
-#' 
-#' @importFrom Rcpp evalCpp
+# @importFrom Rcpp evalCpp
 #' @importFrom abind abind
 #' @importFrom plyr mutate
 #' @importFrom RCurl url.exists getURL
