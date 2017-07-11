@@ -12,6 +12,7 @@ warnings_are_errors: false
 addons:
   apt:
     packages:
+      - libhdf5-serial-dev
       - libgdal-dev
       - libproj-dev
 
