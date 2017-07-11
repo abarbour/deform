@@ -14,7 +14,7 @@ addons:
     packages:
       - libgdal-dev
       - libproj-dev
-      
+
 r_binary_packages:
  - rgdal
  - Rcpp
