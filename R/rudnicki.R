@@ -1,13 +1,31 @@
-biot_willis <- function(nu, nuu, B){
+#' Poroelastic parameters
+#' @param nu numeric; the drained Poisson's ratio  [0,0.5]
+#' @param nuu numeric; the undrained Poisson's ratio  [0,0.5] (\code{nu} < \code{nuu})
+#' @param B numeric; Skempton's coefficient [0,1]
+#' @param mu numeric; the isotropic elastic shear modulus (keep at unity for 'normalized')
+#' @param diffusiv numeric; the isotropic hydraulic diffusivity (keep at unity for 'normalized')
+#' @export
+biot_willis_effstress <- function(nu, nuu, B){
   3*(nuu - nu)/(1 - 2*nu)/(1 + nuu)/B
 }
-compressibility <- function(nu, nuu, B, mu=1){
+#' @rdname biot_willis_effstress
+#' @export
+biot_willis_effstress_vol <- function(K, Ks){
+  1 - K/Ks
+}
+#' @rdname biot_willis_effstress
+#' @export
+biot_compressibility <- function(nu, nuu, B, mu=1){
   9*(1 - 2*nuu)*(nuu - nu)/2/mu/(1 - 2*nu)/(1 + nuu)^2/B^2
 }
-darcy_cond <- function(nu, nuu, B, mu=1, D=1){
-  9*D*(1 - nuu)*(nuu - nu)/2/mu/(1 - nu)/(1 + nuu)^2/B^2
+#' @rdname biot_willis_effstress
+#' @export
+darcy_conductivity <- function(nu, nuu, B, mu=1, diffusiv=1){
+  9*diffusiv*(1 - nuu)*(nuu - nu)/2/mu/(1 - nu)/(1 + nuu)^2/B^2
 }
-lame <- function(nu, mu=1){
+#' @rdname biot_willis_effstress
+#' @export
+lame_first <- function(nu, mu=1){
   2*mu*nu/(1 - 2*nu)
 }
 
@@ -15,25 +33,21 @@ lame <- function(nu, mu=1){
 #' @param r,z numeric; receiver position (radial, depth-positive) [m]
 #' @param t numeric; time [s]
 #' @param zinj numeric; injection depth [m]
-#' @param mu numeric; elastic shear modulus [Pa]
-#' @param d numeric; hydraulic diffusivity [m^2/s]
-#' @param nu,nuu numeric; drained and undrained Poisson's ratio [0,0.5]
-#' @param B numeric; Skempton's coefficient [0,1]
+#' @inheritParams biot_willis_effstress
 #' @param response character; the type of reponse be the impulsive or heaviside
 #' @export
 #' @examples
 #' r <- 1
 #' zi <- 1
 #' t <- seq(1,1000,length.out=101)
-#' mu <- 15e9
 #' 
 #' # Impulse response
-#' rt <- rudnicki(r,1,t,zi, mu=mu)
-#' rtdeep <- rudnicki(r,10,t,zi, mu=mu)
+#' rt <- rudnicki(r,1,t,zi)
+#' rtdeep <- rudnicki(r,10,t,zi)
 #' 
 #' # Step response
-#' rt_s <- rudnicki(r,1,t,zi, mu=mu, response='step')
-#' rtdeep_s <- rudnicki(r,10,t,zi, mu=mu, response='step')
+#' rt_s <- rudnicki(r,1,t,zi, response='step')
+#' rtdeep_s <- rudnicki(r,10,t,zi, response='step')
 #' 
 #' layout(matrix(1:6,2))
 #' plot(rt, col=1)
@@ -48,12 +62,18 @@ lame <- function(nu, mu=1){
 #' plot(rtdeep_s, col=4)
 #' plot.new()
 #' 
-rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, response=c('impulse','step')){
+rudnicki <- function(r, z, t, 
+                     zinj=0, mu=1, diffusiv=1, nu=0.25, nuu=0.33, B=1, 
+                     response=c('impulse','step')){
   
-  alpha <- biot_willis(nu, nuu, B)
-  beta <- compressibility(nu, nuu, B, mu)
-  chi <- darcy_cond(nu, nuu, B, mu, d)
-  la <- lame(nu, mu)
+  response <- match.arg(response)
+  parms <- sprintf("nu=%s, nu_u=%s, B=%s, mu=%s, D=%s", nu, nuu, B, mu, diffusiv)
+  message("calculating ", response, " response for ", parms)
+  
+  alpha <- biot_willis_effstress(nu, nuu, B)
+  beta <- biot_compressibility(nu, nuu, B, mu)
+  chi <- darcy_conductivity(nu, nuu, B, mu, diffusiv)
+  la <- lame_first(nu, mu)
   
   Zrel <- z - zinj
   p0 <- 1/(4*pi*chi)
@@ -63,7 +83,7 @@ rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, resp
   Dis <- sqrt(Zrel^2 + Rsq)
   Dis3 <- Dis^3
   
-  eta <- Dis/sqrt(d*`t`)/2
+  eta <- Dis/sqrt(diffusiv * `t`)/2
   etasq <- eta^2
   eta3 <- eta^3
   eta4 <- eta^4
@@ -71,16 +91,15 @@ rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, resp
   eta_erf <- deform::erf(eta)
   eta_erfc <- deform::erfc(eta)
   
-  fct  <- eta_erfc + eta_erf/etasq/2 - exp(-etasq)/eta/sqrt(pi)
-  pfct <- -eta_erf/eta3 + 2*exp(-etasq)/etasq/sqrt(pi)
+  sqpi <- sqrt(pi)
   
-  perfc <- -2 * exp(-etasq)/sqrt(pi)
-  ppfct <- perfc/eta3 + 3*eta_erf/eta4 - 4*exp(-etasq)*(1 + etasq)/sqrt(pi)/eta3
+  fct  <- eta_erfc + eta_erf/etasq/2 - exp(-etasq)/eta/sqpi
+  pfct <- -eta_erf/eta3 + 2*exp(-etasq)/etasq/sqpi
+  
+  perfc <- -2 * exp(-etasq)/sqpi
+  ppfct <- perfc/eta3 + 3*eta_erf/eta4 - 4*exp(-etasq)*(1 + etasq)/sqpi/eta3
   doteta <- -eta/t/2
   
-  response <- match.arg(response)
-  parms <- sprintf("nu=%s, nu_u=%s, B=%s, mu=%s, D=%s", nu, nuu, B, mu, d)
-  message("calculating ", response, " response for ", parms)
   if (response == 'impulse'){
     #
     # response to impulsive source
@@ -95,7 +114,7 @@ rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, resp
     ett <- C*u0*pfct
     ezr <- u0*eta*ppfct*doteta*Zrel*r / Dis3
     
-    dp <- p0*doteta*(perfc + 2*(1 - 2*etasq)*exp(-etasq)/sqrt(pi))
+    dp <- p0*doteta*(perfc + 2*(1 - 2*etasq)*exp(-etasq)/sqpi)
   
   } else {
     #
@@ -111,7 +130,7 @@ rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, resp
     ett <- u0*fct / Dis
     ezr <- u0*(eta*pfct - fct)*Zrel*r / Dis3
     
-    dp <- p0*(eta_erfc + 2*eta*exp(-etasq)/sqrt(pi))
+    dp <- p0*(eta_erfc + 2*eta*exp(-etasq)/sqpi)
 
   }
   
@@ -120,8 +139,9 @@ rudnicki <- function(r, z, t, zinj=0, mu=10e9, d=1, nu=0.25, nuu=0.33, B=1, resp
   dpr <- -dp*r / Dis3
   
   res <- list(type = response,
-              params = list(r, z, zinj, 
-                            alpha = alpha, beta = beta, chi = chi, lambda = la),
+              params = list(spatial=list(r, z, zinj),
+                            params=list(nu, nuu, B, diffusiv),
+                            calc_params=list(alpha, beta, chi, lambda = la)),
               time = `t`,
               displacement = cbind(z=uz, r=ur),
               strain = cbind(zz = ezz, rr = err, tt = ett, zr = ezr),
@@ -144,33 +164,43 @@ plot.rudnicki <- function(x, response=FALSE, ...){
   
   app <- ifelse(response, " (response)","")
   
+  .addleg <- function(yn){
+    ny <- length(yn)
+    if (ny>1) legend('top', yn, ncol = ny, col=seq_len(ny), lty=seq_len(ny), bty='n')
+  }
+  
   y <- x[['displacement']]
-  ynms <- paste(colnames(y), collapse=" - ")
   if (!response) y <- apply(y, 2, cumsum)
-  matplot(xt, y, type='l', main=paste0(typ, ': displacements', app), ...)
-  mtext(ynms, line=-1)
+  matplot(xt, y, type='l', 
+          ylab="", xlab="",
+          main=paste0(typ, ': displacements', app), ...)
+  .addleg(colnames(y))
   
   y <- x[['strain']]
-  ynms <- paste(colnames(y), collapse=" - ")
   if (!response) y <- apply(y, 2, cumsum)
-  matplot(xt, y, type='l', main=paste0(typ, ': strain', app), ...)
-  mtext(ynms, line=-1)
+  matplot(xt, y, type='l', 
+          ylab="", xlab="",
+          main=paste0(typ, ': strain', app), ...)
+  .addleg(colnames(y))
   
   y <- x[['tilt']]
-  ynms <- paste(colnames(y), collapse=" - ")
   if (!response) y <- apply(y, 2, cumsum)
-  matplot(xt, y, type='l', main=paste0(typ, ': tilt', app), ...)
-  mtext(ynms, line=-1)
+  matplot(xt, y, type='l', 
+          ylab="", xlab="",
+          main=paste0(typ, ': tilt', app), ...)
+  .addleg(colnames(y))
   
   y <- x[['pore.pressure']]
-  ynms <- paste(colnames(y), collapse=" - ")
   if (!response) y <- apply(y, 2, cumsum)
-  matplot(xt, y, type='l', main=paste0(typ, ': pore pressure', app), ...)
-  mtext(ynms, line=-1)
+  matplot(xt, y, type='l', 
+          ylab="", xlab="",
+          main=paste0(typ, ': pore pressure', app), ...)
+  .addleg(colnames(y))
   
   y <- x[['darcy.flux']]
-  ynms <- paste(colnames(y), collapse=" - ")
   if (!response) y <- apply(y, 2, cumsum)
-  matplot(xt, y, type='l', main=paste0(typ, ': darcy flux', app), ...)
-  mtext(ynms, line=-1)
+  matplot(xt, y, type='l', 
+          ylab="", xlab="",
+          main=paste0(typ, ': Darcy fluid flux', app), ...)
+  .addleg(colnames(y))
 }

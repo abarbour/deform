@@ -5,8 +5,8 @@
 \alias{plot.rudnicki}
 \title{Rudnicki's response to point and step injection}
 \usage{
-rudnicki(r, z, t, zinj = 0, mu = 1e+10, d = 1, nu = 0.25, nuu = 0.33,
-  B = 1, response = c("impulse", "step"))
+rudnicki(r, z, t, zinj = 0, mu = 1, diffusiv = 1, nu = 0.25,
+  nuu = 0.33, B = 1, response = c("impulse", "step"))
 
 \method{plot}{rudnicki}(x, response = FALSE, ...)
 }
@@ -17,11 +17,13 @@ rudnicki(r, z, t, zinj = 0, mu = 1e+10, d = 1, nu = 0.25, nuu = 0.33,
 
 \item{zinj}{numeric; injection depth [m]}
 
-\item{mu}{numeric; elastic shear modulus [Pa]}
+\item{mu}{numeric; the isotropic elastic shear modulus (keep at unity for 'normalized')}
 
-\item{d}{numeric; hydraulic diffusivity [m^2/s]}
+\item{diffusiv}{numeric; the isotropic hydraulic diffusivity (keep at unity for 'normalized')}
 
-\item{nu, nuu}{numeric; drained and undrained Poisson's ratio [0,0.5]}
+\item{nu}{numeric; the drained Poisson's ratio  [0,0.5]}
+
+\item{nuu}{numeric; the undrained Poisson's ratio  [0,0.5] (\code{nu} < \code{nuu})}
 
 \item{B}{numeric; Skempton's coefficient [0,1]}
 
@@ -34,15 +36,14 @@ Rudnicki's response to point and step injection
 r <- 1
 zi <- 1
 t <- seq(1,1000,length.out=101)
-mu <- 15e9
 
 # Impulse response
-rt <- rudnicki(r,1,t,zi, mu=mu)
-rtdeep <- rudnicki(r,10,t,zi, mu=mu)
+rt <- rudnicki(r,1,t,zi)
+rtdeep <- rudnicki(r,10,t,zi)
 
 # Step response
-rt_s <- rudnicki(r,1,t,zi, mu=mu, response='step')
-rtdeep_s <- rudnicki(r,10,t,zi, mu=mu, response='step')
+rt_s <- rudnicki(r,1,t,zi, response='step')
+rtdeep_s <- rudnicki(r,10,t,zi, response='step')
 
 layout(matrix(1:6,2))
 plot(rt, col=1)
