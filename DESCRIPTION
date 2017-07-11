@@ -25,6 +25,7 @@ Suggests:
     maps,
     sp,
     plyr,
-    pracma
+    pracma,
+    testthat
 LinkingTo: Rcpp
 RoxygenNote: 6.0.1
