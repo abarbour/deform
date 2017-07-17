@@ -1,40 +1,36 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: required
 cache: packages
 warnings_are_errors: false
-
-dist: trusty
-
-before_install:
-    - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
-    - sudo apt-get --yes --force-yes update -qq
-    - sudo apt-get install --yes udunits-bin libproj-dev libgeos-dev libgdal-dev libgdal1-dev libudunits2-dev
-
-#addons:
-#  apt:
-#    packages:
-#      - libhdf5-dev
-#      - libgdal-dev
-#      - libproj-dev
-
+sudo: required
+dist: precise
+group: edge
+env:
+  global:
+    - NOT_CRAN = true
+before_install: 
+  echo "options(repos = c(CRAN='https://cran.rstudio.com'))" > ~/.Rprofile
+#  - sudo apt-get autoclean
+#  - sudo aptitude install libgdal-dev
+apt_packages:
+  - libnetcdf-dev
+  - udunits-bin
+  - libudunits2-dev
+  - netcdf-bin
+#  - libproj-dev
+#  - libcurl4-gnutls-dev
+#  - libdap-dev
+#  - libgdal-dev
+#  - libgdal1h
+#  - libhdf5-7=1.8.11-3ubuntu1~precise1~ppa1
+#  - libhdf5-dev
+#  - libhdf5-serial-dev
+#  - libgdal-dev
+#  - libgdal1-dev
 r_binary_packages:
- - rgdal
- - Rcpp
- - raster
- - maptools
- - testthat
- - covr
- - RColorBrewer
- - TeachingDemos
- - maps
- - sp
- - plyr
- - pracma
-
-#r_github_packages:
- #- abarbour/kelvin
+  - rgdal
+  - rgeos
 
 notifications:
  email:
