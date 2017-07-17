@@ -28,6 +28,8 @@
 #' @param Youngs.modulus numeric; [Pa] Young's modulus of elasticity of the surrounding material
 #' @param nu numeric; [0-1] Poisson's ratio of the surrounding material
 #' @param verbose logical; should messages be given?
+#' @param ... additional parameters to \code{.mogi_calc}
+#' @param src numeric; the source strength
 #' 
 #' @references [1] \url{http://www.ipgp.fr/~beaudu/matlab.html#Mogi}
 #' @references Mogi, K. (1958), Relations between the eruptions of various volcanoes and the
@@ -35,7 +37,7 @@
 #'		Inst. Univ. Tokyo}, 36, 99-134. (\url{http://hdl.handle.net/2261/11909})
 #'  	
 #' @author Original Matlab code 'mogi.m' written by Francois Beauducel; AJ Barbour ported to R code.
-#' @family volume-sources
+#' 
 #' @seealso \code{\link{Uniaxial_extension}} and \code{\link{Tilt}} 
 #' @examples
 #' library(RColorBrewer)
@@ -50,24 +52,31 @@
 #' # calculate the deformation specifying a positive rate of volume-change (inflation)
 #' MV <- mogi.volume(r, 1, 1e-5, verbose=TRUE)
 #' 
-#' filled.contour(x, y, matrix((MV[,'Ur']), length(x)), asp=1, main='Ur', nlevels = 11, color.palette=div.palfun)
-#' filled.contour(x, y, matrix((MV[,'Uz']), length(x)), asp=1, main='Uz', color.palette=div.palfun, levels=seq(0,2.5e-6, length.out = 11))
+#' filled.contour(x, y, matrix((MV[,'Ur']), length(x)), asp=1, main='Ur', 
+#'     nlevels = 11, color.palette=div.palfun)
+#' filled.contour(x, y, matrix((MV[,'Uz']), length(x)), asp=1, main='Uz', 
+#'     color.palette=div.palfun, levels=seq(0,2.5e-6, length.out = 11))
 #' 
-#' filled.contour(x, y, matrix((MV[,'Ett']), length(x)), levels=seq(0,2.5e-6,length.out=9), asp=1, main='Ett', color.palette=seq.palfun)
-#' filled.contour(x, y, matrix((MV[,'Err']), length(x)), zlim=3e-6*c(-1,1), asp=1, main='Err', nlevels = 11)
+#' filled.contour(x, y, matrix((MV[,'Ett']), length(x)), levels=seq(0,2.5e-6,length.out=9), 
+#'     asp=1, main='Ett', color.palette=seq.palfun)
+#' filled.contour(x, y, matrix((MV[,'Err']), length(x)), zlim=3e-6*c(-1,1), 
+#'     asp=1, main='Err', nlevels = 11)
 #' 
 #' # There should be a null in the center of the tilt field
-#' filled.contour(x, y, matrix((MV[,'Tilt']), length(x)), asp=1, main='Tilt', levels=seq(0,2.5e-6,length.out=9), color.palette=seq.palfun)
+#' filled.contour(x, y, matrix((MV[,'Tilt']), length(x)), 
+#'     asp=1, main='Tilt', levels=seq(0,2.5e-6,length.out=9), color.palette=seq.palfun)
 #' 
 #' # Calculate the undrained-to-drained effect:
 #' #  first calculate for nu=1/3
 #' MVud <- mogi.volume(r, 1, 1e-5, nu=1/3, verbose=TRUE)
 #' #  then subtract the 1/4 result
 #' Resp.ud <- matrix((MV[,'Uz']), length(x)) - matrix((MVud[,'Uz']), length(x))
-#' filled.contour(x, y, log10(Resp.ud), asp=1, main='Undrained response: Uz', color.palette=seq.palfun, levels=seq(-8,-6.5,length.out=9))
+#' filled.contour(x, y, log10(Resp.ud), 
+#'     asp=1, main='Undrained response: Uz', color.palette=seq.palfun, 
+#'     levels=seq(-8,-6.5,length.out=9))
 #' #
 #' 
-#' Using values comparable to the previous example, but specifying pressure changes
+#' #Using values comparable to the previous example, but specifying pressure changes
 #' MP <- mogi.pressure(r, 1, 0.01, 1e10, shear.modulus=3.08e9)
 #' MP2 <- mogi.pressure(r, 1, 0.01, 1e10, Youngs.modulus=10e9)
 #' 

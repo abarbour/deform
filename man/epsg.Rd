@@ -25,7 +25,7 @@ D_project(Df, coords = names(Df)[1:2], p4, p4old, verbose = TRUE, ...)
 
 \item{coords}{character; the names of the coordinates in \code{Df}}
 
-\item{p4, p4old;}{these are the proj4 strings for the new (\code{p4})
+\item{p4, p4old}{character; these are the proj4 strings for the new (\code{p4})
 and old (\code{p4old}) data.  More specifically, \code{p4} will be
 the new projection (set by \code{\link{CRS}}), and  
 \code{p4old} is the old projection (set by \code{\link{proj4string}}).}

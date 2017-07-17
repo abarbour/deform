@@ -9,6 +9,23 @@ hydraulic_diffusivity(k., eta., mu., B., nu. = 1/4, nuu. = 1/3)
 
 rigid_hydraulic_diffusivity(k., eta., phi., Beta.)
 }
+\arguments{
+\item{k.}{numeric; the permeability}
+
+\item{eta.}{numeric; the XXX}
+
+\item{mu.}{numeric; the shear modulus in Pascals}
+
+\item{B.}{numeric; the xxx}
+
+\item{nu.}{numeric; the drained Poisson's ratio (typically 1/4)}
+
+\item{nuu.}{numeric; the 'undrained' Poisson's ratio (typically 1/3)}
+
+\item{phi.}{numeric; the XXX}
+
+\item{Beta.}{numeric; the XXX}
+}
 \description{
 Calculate hydraulic diffusivity of a fluid saturated medium
 }

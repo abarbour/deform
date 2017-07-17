@@ -2,35 +2,40 @@
 % Please edit documentation in R/vasco98.R
 \name{vasco98}
 \alias{vasco98}
-\alias{vasco1998}
 \alias{.surface_g_pt}
 \alias{surface_displacement_point}
 \title{Surface deformation associated with fluid withdrawl: an alternative formulation}
 \usage{
-vasco98()
+vasco98(help = FALSE)
 
-.surface_g_pt(x = 0, x_src = 0, z_src = 0, nuu = 1/3)
+.surface_g_pt(x = 0, x_src = 0, z_src = 0, nuu. = 1/3)
 
 surface_displacement_point(x, depth, delV., B. = 1, rho_f. = 1000, tol, ...)
 }
 \arguments{
-\item{x}{numeric; the horizontal (or radial) distance from the source}
+\item{help}{logical; load documentation for \code{\link{vasco98}}}
+
+\item{x}{numeric; spatial coordinate relative to extraction point}
+
+\item{x_src}{numeric; the horizontal distance from the source}
+
+\item{z_src}{numeric; the depth of the source below the surface}
+
+\item{nuu.}{numeric; the 'undrained' Poisson's ratio (typically 1/3)}
 
 \item{depth}{numeric; the depth below the surface to the source}
 
 \item{delV.}{numeric; uniform change in pore-fluid volume (positive = loss)}
 
-\item{B.}{numeric; Skempton's ratio for the reservoir material}
+\item{B.}{numeric; the xxx}
 
-\item{rho_f.}{numeric; the density of the fluid in the reservoir material}
+\item{rho_f.}{numeric; the fluid density}
 
 \item{tol}{numeric; the numerical tolerance in the integration; if 
 supplied, this should be much smaller than the smallest difference between
 any values in \code{x} divided by the depth}
 
 \item{...}{additional arguments passed to \code{\link{.surface_g_pt}}}
-
-\item{help}{logical; load documentation for \code{\link{vasco98}}}
 }
 \description{
 Surface deformation associated with fluid withdrawl: an alternative formulation

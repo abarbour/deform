@@ -2,8 +2,6 @@
 % Please edit documentation in R/segall85.R
 \name{segall85}
 \alias{segall85}
-\alias{segall}
-\alias{segall1985}
 \alias{surface_displacement}
 \alias{.surface_g}
 \alias{timevarying_fluidmass}
@@ -15,7 +13,7 @@ segall85(help = FALSE)
 
 surface_displacement(x, C. = 1, mu. = 1e+09, ...)
 
-.surface_g(x = 0, x_src = 0, z_src = 0, nuu = 1/3)
+.surface_g(x = 0, x_src = 0, z_src = 0, nuu. = 1/3)
 
 timevarying_fluidmass(x, Time, Vdot., L., t., HD., phi.)
 
@@ -40,7 +38,7 @@ timevarying_porepressure(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa.,
 
 \item{z_src}{numeric; the depth of the source below the surface}
 
-\item{nuu}{numeric; the 'undrained' Poisson's ratio (typically 1/3)}
+\item{nuu.}{numeric; the 'undrained' Poisson's ratio (typically 1/3)}
 
 \item{Time}{numeric; the time from xxx}
 
@@ -62,6 +60,8 @@ timevarying_porepressure(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa.,
 
 \item{x.lim}{numeric; the limit of integration in both the positive and negative directions; if 
 missing this is based on the absolute maximum of \code{x}}
+
+\item{z}{numeric; the observation depth}
 
 \item{mu.gpa.}{numeric; the shear modulus in giga-Pascals (GPa)}
 
@@ -124,12 +124,18 @@ yr <- 365*86400
 ## Surface displacements
 # perform the integration and make the figure:
 # -- single source
-zz1 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
-matplot(.x.km., zz1*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
+zz1 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., 
+    .B., .L., .D., .c., 
+    Pt.Sources.x=.Sources.x.)
+matplot(.x.km., zz1*1e3, type="l", col="black", 
+    main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 
 # -- dual sources
-zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., c(1,0.5)*.Vdot., .B., .L., .D., .c., Pt.Sources.x=.TwoSources.x.)
-matplot(.x.km., zz2*1e3, type="l", col="black", main="Dual-source Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
+zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., c(1,0.5)*.Vdot., 
+    .B., .L., .D., .c., 
+    Pt.Sources.x=.TwoSources.x.)
+matplot(.x.km., zz2*1e3, type="l", col="black", 
+    main="Dual-source Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 
 # -- tilt history for multiple sources
 zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
@@ -137,10 +143,13 @@ matplot(.x.km., zz2t*1e6, type="l", col="black", main="Tilt")
 
 ## Fluid mass content history 
 zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
-matplot(.x.km., zz3*1e2, type="l", col="black", main="t.v. Fluid mass change, Segall 1985, Fig 7B")
+matplot(.x.km., zz3*1e2, type="l", col="black", 
+    main="t.v. Fluid mass change, Segall 1985, Fig 7B")
 
 ## Pore pressure changes (computationally expensive!)
-zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2), .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
+zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2), 
+    .B., .L., .D., .c., .t., .mu., 
+    Pt.Sources.x=.TwoSources.x.)
 # result is an array of images with the 3rd dimension equal to length(.time.)
 
 layout(matrix(1:6,nr=2, byrow=TRUE))

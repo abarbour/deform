@@ -25,6 +25,8 @@ mogi.pressure(surface.distance, sphere.depth, sphere.radius, Pressure.change,
 
 \item{Volume.change}{numeric; [m^3] volumetric change of the spherical cavity (inflation positive)}
 
+\item{...}{additional parameters to \code{.mogi_calc}}
+
 \item{sphere.radius}{numeric; [m] radius of the spherical cavity that's inflating or deflating}
 
 \item{Pressure.change}{numeric; [Pa] hydrostatic pressure change in the spherical cavity (inflation positive)}
@@ -34,6 +36,8 @@ mogi.pressure(surface.distance, sphere.depth, sphere.radius, Pressure.change,
 \item{Youngs.modulus}{numeric; [Pa] Young's modulus of elasticity of the surrounding material}
 
 \item{nu}{numeric; [0-1] Poisson's ratio of the surrounding material}
+
+\item{src}{numeric; the source strength}
 
 \item{verbose}{logical; should messages be given?}
 }
@@ -68,24 +72,31 @@ r <- theta_r[,'Radius']
 # calculate the deformation specifying a positive rate of volume-change (inflation)
 MV <- mogi.volume(r, 1, 1e-5, verbose=TRUE)
 
-filled.contour(x, y, matrix((MV[,'Ur']), length(x)), asp=1, main='Ur', nlevels = 11, color.palette=div.palfun)
-filled.contour(x, y, matrix((MV[,'Uz']), length(x)), asp=1, main='Uz', color.palette=div.palfun, levels=seq(0,2.5e-6, length.out = 11))
+filled.contour(x, y, matrix((MV[,'Ur']), length(x)), asp=1, main='Ur', 
+    nlevels = 11, color.palette=div.palfun)
+filled.contour(x, y, matrix((MV[,'Uz']), length(x)), asp=1, main='Uz', 
+    color.palette=div.palfun, levels=seq(0,2.5e-6, length.out = 11))
 
-filled.contour(x, y, matrix((MV[,'Ett']), length(x)), levels=seq(0,2.5e-6,length.out=9), asp=1, main='Ett', color.palette=seq.palfun)
-filled.contour(x, y, matrix((MV[,'Err']), length(x)), zlim=3e-6*c(-1,1), asp=1, main='Err', nlevels = 11)
+filled.contour(x, y, matrix((MV[,'Ett']), length(x)), levels=seq(0,2.5e-6,length.out=9), 
+    asp=1, main='Ett', color.palette=seq.palfun)
+filled.contour(x, y, matrix((MV[,'Err']), length(x)), zlim=3e-6*c(-1,1), 
+    asp=1, main='Err', nlevels = 11)
 
 # There should be a null in the center of the tilt field
-filled.contour(x, y, matrix((MV[,'Tilt']), length(x)), asp=1, main='Tilt', levels=seq(0,2.5e-6,length.out=9), color.palette=seq.palfun)
+filled.contour(x, y, matrix((MV[,'Tilt']), length(x)), 
+    asp=1, main='Tilt', levels=seq(0,2.5e-6,length.out=9), color.palette=seq.palfun)
 
 # Calculate the undrained-to-drained effect:
 #  first calculate for nu=1/3
 MVud <- mogi.volume(r, 1, 1e-5, nu=1/3, verbose=TRUE)
 #  then subtract the 1/4 result
 Resp.ud <- matrix((MV[,'Uz']), length(x)) - matrix((MVud[,'Uz']), length(x))
-filled.contour(x, y, log10(Resp.ud), asp=1, main='Undrained response: Uz', color.palette=seq.palfun, levels=seq(-8,-6.5,length.out=9))
+filled.contour(x, y, log10(Resp.ud), 
+    asp=1, main='Undrained response: Uz', color.palette=seq.palfun, 
+    levels=seq(-8,-6.5,length.out=9))
 #
 
-Using values comparable to the previous example, but specifying pressure changes
+#Using values comparable to the previous example, but specifying pressure changes
 MP <- mogi.pressure(r, 1, 0.01, 1e10, shear.modulus=3.08e9)
 MP2 <- mogi.pressure(r, 1, 0.01, 1e10, Youngs.modulus=10e9)
 

@@ -1,6 +1,5 @@
 #' Surface deformation associated with fluid withdrawl: an alternative formulation
 #' @name vasco98
-#' @aliases vasco1998
 #' @export
 #' @param help logical; load documentation for \code{\link{vasco98}}
 #' @references Vasco, D., et al. (1998), Monitoring of Fluid Injection and 
@@ -14,16 +13,16 @@
 #' r.m <- r*1e3
 #' xx <- surface_displacement_point(r.m, depth=2e3, delV.=1e7)
 #' plot(uz ~ x, xx, type='l')
-vasco98 <- function(){
+vasco98 <- function(help=FALSE){
   cat("\nThis function is simply a placeholder. See the documentation ( `?vasco98` ).\n")
   if (help) ?vasco98
 }
 
 #' @rdname vasco98
 #' @export
-.surface_g_pt <- function(x=0, x_src=0, z_src=0, nuu=1/3){
+.surface_g_pt <- function(x=0, x_src=0, z_src=0, nuu.=1/3){
   # vasco98 11
-  sc <- (1 + nuu)/(3*pi)
+  sc <- (1 + nuu.)/(3*pi)
   xrel <- (x - x_src)
   # double-check:
   g <- sc * xrel / (xrel^2 + z_src^2)**(3/2)
@@ -32,9 +31,10 @@ vasco98 <- function(){
 
 #' @rdname vasco98
 #' @export
-#' @inheritParams surface_displacement_reservoir
+#' @inheritParams segall85
 #' @param depth numeric; the depth below the surface to the source
 #' @param delV. numeric; uniform change in pore-fluid volume (positive = loss)
+#' @param rho_f. numeric; the fluid density
 #' @param tol numeric; the numerical tolerance in the integration; if 
 #' supplied, this should be much smaller than the smallest difference between
 #' any values in \code{x} divided by the depth

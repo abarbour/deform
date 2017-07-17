@@ -1,6 +1,6 @@
 #' Surface deformation associated with fluid withdrawl
+#' 
 #' @name segall85
-#' @aliases segall segall1985
 #' @export
 #' @param help logical; load documentation for \code{\link{segall85}}
 #' @seealso \code{\link{Simple-deformation}}
@@ -58,12 +58,18 @@
 #' ## Surface displacements
 #' # perform the integration and make the figure:
 #' # -- single source
-#' zz1 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., .B., .L., .D., .c., Pt.Sources.x=.Sources.x.)
-#' matplot(.x.km., zz1*1e3, type="l", col="black", main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
+#' zz1 <- timevarying_surface_displacement(.x.km.*1e3, .time., .Vdot., 
+#'     .B., .L., .D., .c., 
+#'     Pt.Sources.x=.Sources.x.)
+#' matplot(.x.km., zz1*1e3, type="l", col="black", 
+#'     main="Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 #' 
 #' # -- dual sources
-#' zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., c(1,0.5)*.Vdot., .B., .L., .D., .c., Pt.Sources.x=.TwoSources.x.)
-#' matplot(.x.km., zz2*1e3, type="l", col="black", main="Dual-source Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
+#' zz2 <- timevarying_surface_displacement(.x.km.*1e3, .time., c(1,0.5)*.Vdot., 
+#'     .B., .L., .D., .c., 
+#'     Pt.Sources.x=.TwoSources.x.)
+#' matplot(.x.km., zz2*1e3, type="l", col="black", 
+#'     main="Dual-source Subsidence, mm, Segall 1985, Fig 8B", sub=Sys.time())
 #'
 #' # -- tilt history for multiple sources
 #' zz2t <- apply(zz2, 2, function(.z.) matrix(Tilt(.x.km.*1e3, z=.z.)$ztilt))
@@ -71,10 +77,13 @@
 #'
 #' ## Fluid mass content history 
 #' zz3 <- timevarying_fluidmass(.x.km.*1e3, .time., .Vdot., .L., .t., .c., phi.=.phi.)
-#' matplot(.x.km., zz3*1e2, type="l", col="black", main="t.v. Fluid mass change, Segall 1985, Fig 7B")
+#' matplot(.x.km., zz3*1e2, type="l", col="black", 
+#'     main="t.v. Fluid mass change, Segall 1985, Fig 7B")
 #' 
 #' ## Pore pressure changes (computationally expensive!)
-#' zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2), .B., .L., .D., .c., .t., .mu., Pt.Sources.x=.TwoSources.x.)
+#' zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2), 
+#'     .B., .L., .D., .c., .t., .mu., 
+#'     Pt.Sources.x=.TwoSources.x.)
 #' # result is an array of images with the 3rd dimension equal to length(.time.)
 #' 
 #' layout(matrix(1:6,nr=2, byrow=TRUE))
@@ -119,6 +128,7 @@ segall85 <- function(help=FALSE){
 #' @rdname segall85
 #' @export
 surface_displacement <- function(x, C.=1, mu.=1e9, ...){
+  gx <- gz <- ux <- uz <- NULL
   sg <- .surface_g(x, ...)
   c. <- C./mu.
   sg <- plyr::mutate(sg,
@@ -133,11 +143,11 @@ surface_displacement <- function(x, C.=1, mu.=1e9, ...){
 #' @export
 #' @param x_src numeric; the horizontal distance from the source
 #' @param z_src numeric; the depth of the source below the surface
-#' @param nuu numeric; the 'undrained' Poisson's ratio (typically 1/3)
-.surface_g <- function(x=0, x_src=0, z_src=0, nuu=1/3){
+#' @param nuu. numeric; the 'undrained' Poisson's ratio (typically 1/3)
+.surface_g <- function(x=0, x_src=0, z_src=0, nuu.=1/3){
   # segall85 C9
-  gx <-  2*(1 - nuu)*(x - x_src)/(z_src^2 + (x - x_src)^2)
-  gz <- -2*(1 - nuu)*z_src/(z_src^2 + (x - x_src)^2)
+  gx <-  2*(1 - nuu.)*(x - x_src)/(z_src^2 + (x - x_src)^2)
+  gz <- -2*(1 - nuu.)*z_src/(z_src^2 + (x - x_src)^2)
   data.frame(x, gx, gz, xz=x/z_src)
 }
 
@@ -223,6 +233,7 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
 #' @export
 #' @param nu. numeric; the drained Poisson's ratio (typically 1/4)
 #' @param mu.gpa. numeric; the shear modulus in giga-Pascals (GPa)
+#' @param z numeric; the observation depth
 timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa., nu.=1/4, nuu.=1/3, Pt.Sources.x=0, x.lim){
   #
   # Time varying p.p. associated with fluid extraction
@@ -279,7 +290,7 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
       matrix(ires, ncol=length(z), byrow = FALSE)
     }
     # Array of depth slices for all sources
-    sourcePP <- abind(lapply(X = Sources, FUN = .xi.integ2D), along=3)
+    sourcePP <- abind::abind(lapply(X = Sources, FUN = .xi.integ2D), along=3)
     # time varying component (scaling)
     tvar <- -2 * mu. * (1 + nuu.)^2 * B.^2 * Vdot. * sqrt(ti / HD.) / (9 * L. * t.)
     #
@@ -288,7 +299,7 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
       # accounts for multiple values of Vdot.
       dsp <- dim(sourcePP)
       #array(data = tvar, dim = dim(sourcePP))
-      abind(lapply(tvar, function(tv) array(tv, c(dsp[1:2],1))))
+      abind::abind(lapply(tvar, function(tv) array(tv, c(dsp[1:2],1))))
     } else {
       if (length(tvar)==1){
         tvar
@@ -304,104 +315,5 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
     return(-1*res/sc)
   }
   # apply FUN through time
-  abind(lapply(X = Time, FUN = .FUN, Xi.sources=Sources), along=3)
-}
-
-#' Simple numerical deformation estimates
-#' 
-#' Calculate tilts and extensions based on spatially varying displacements
-#' 
-#' @details
-#' \code{\link{Uniaxial_extension}} calculates the component of
-#' strain associated with deformation along a single axis.
-#' For example, the change in the Eastward displacements (or rates)
-#' in the East direction.
-#' 
-#' \code{\link{Tilt}} calculates the tilt field associates with
-#' spatial variations in vertical positions (or rates of change);
-#' the sign convention used is such that
-#' a ball placed on the x-y plane would roll in the direction of the
-#' tilt vector.  Or, in other words, the tilt vector is the direction a
-#' plumb bob would move.
-#' 
-#' Calculations are done with \code{\link{diff}}.
-#' 
-#' @note \code{\link{Tilt}} has not been well-tested for two-dimensional
-#' results!
-#' @name Simple-deformation
-#' @param x numeric; the spatial vector in real units (not an index!)
-#' @param X numeric; the quantity varying in the direction of \code{x}
-#' @param y numeric; the spatial vector perpendicular to \code{x} in real units
-#' @param z numeric; values which vary in the direction perpendicular to the \code{x}-\code{y} plane
-#' @param left logical; should padding be on the "left" side of the vector (i.e., index number 1)?
-#' @export
-#' @seealso \code{\link{segall85}}
-#' @examples
-#' # Some x values
-#' xval. <- sort(unique(c(-7:-3, seq(-3.90,3.90,by=0.05), 3:7)))
-#' set.seed(1221)
-#' xanis <- rnorm(length(xval.), sd = 10)
-#' 
-#' #  surface displacements
-#' su <- surface_displacement(xval.*1e3, C.=1e13, z_src=0.7e3)
-#' 
-#' # Vertical tilt -- assumes axial symmetry
-#' sut <- with(su, Tilt(x, z=uz))
-#' #               -- including anisotropic effects
-#' sut.anis <- with(su, Tilt(x, x = sort(x + xanis), z=uz))
-#' 
-#' plot(ztilt ~ x, sut.anis, col='blue', pch=16, cex=0.5)
-#' lines(ztilt ~ x, sut, lwd=2)
-#' 
-#' plot(ztilt ~ abs(x), sut.anis, col='blue', pch=ifelse(sign(x)==1,16,1), cex=0.5)
-#' lines(ztilt ~ abs(x), sut, lwd=2)
-#'  
-#' # Uniaxial strain in the 'x' direction
-#' sue <- with(su, Uniaxial_extension(x, X=ux))
-#' sue.anis <- with(su, Uniaxial_extension(sort(x + xanis), X=ux))
-#' 
-#' plot(dXdx ~ x, sue.anis, col='blue', pch=16, cex=0.5)
-#' lines(dXdx ~ x, sue, lwd=2)
-#'  
-#' plot(dXdx ~ abs(x), sue.anis, col='blue', pch=ifelse(sign(x)==1,16,1), cex=0.5)
-#' lines(dXdx ~ abs(x), sue, lwd=2)
-#' 
-#' # see how the 'left' argument affects things:
-#' .setleft(1,TRUE) # NA  1
-#' .setleft(1,FALSE) # 1  NA
-Uniaxial_extension <- function(x, X, left=TRUE){
-  deriv <- diff(X)/diff(x)
-  dXdx <- .setleft(deriv, left)
-  data.frame(x, dXdx)
-}
-#' @rdname Simple-deformation
-#' @export
-Tilt <- function(x, y=NULL, z, left=TRUE){
-  deriv1 <- diff(z)/diff(x)
-  dzdx <- .setleft(deriv1, left)
-  dzdy <- if (is.null(y)){
-    dzdx
-  } else {
-    # this needs to be more intelligent:
-    # what if z is a matrix!?
-    deriv2 <- diff(z)/diff(x)
-    .setleft(deriv2, left)
-  }
-  # reverse sign so that the sign convention
-  # is such that a positive tilt corresponds to
-  # the direction a plumb bob would head, or
-  # the direction a ball on the surface would roll
-  tlt <- -1*(dzdx + dzdy)
-  ang <- atan2(dzdy, dzdx) * 180/pi 
-  data.frame(x = x, ztilt = tlt, xy.direction = ang)
-}
-#' @rdname Simple-deformation
-#' @export
-.setleft <- function(x, left=TRUE){
-  x <- as.vector(x)
-  if (left){
-    c(NA, x)
-  } else {
-    c(x, NA)
-  }
+  abind::abind(lapply(X = Time, FUN = .FUN, Xi.sources=Sources), along=3)
 }

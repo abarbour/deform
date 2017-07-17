@@ -1,53 +1,32 @@
-#' Poroelastic parameters
-#' @param nu numeric; the drained Poisson's ratio  [0,0.5]
-#' @param nuu numeric; the undrained Poisson's ratio  [0,0.5] (\code{nu} < \code{nuu})
-#' @param B numeric; Skempton's coefficient [0,1]
-#' @param mu numeric; the isotropic elastic shear modulus (keep at unity for 'normalized')
-#' @param diffusiv numeric; the isotropic hydraulic diffusivity (keep at unity for 'normalized')
-#' @export
-biot_willis_effstress <- function(nu, nuu, B){
-  3*(nuu - nu)/(1 - 2*nu)/(1 + nuu)/B
-}
-#' @rdname biot_willis_effstress
-#' @export
-biot_willis_effstress_vol <- function(K, Ks){
-  1 - K/Ks
-}
-#' @rdname biot_willis_effstress
-#' @export
-biot_compressibility <- function(nu, nuu, B, mu=1){
-  9*(1 - 2*nuu)*(nuu - nu)/2/mu/(1 - 2*nu)/(1 + nuu)^2/B^2
-}
-#' @rdname biot_willis_effstress
-#' @export
-darcy_conductivity <- function(nu, nuu, B, mu=1, diffusiv=1){
-  9*diffusiv*(1 - nuu)*(nuu - nu)/2/mu/(1 - nu)/(1 + nuu)^2/B^2
-}
-#' @rdname biot_willis_effstress
-#' @export
-lame_first <- function(nu, mu=1){
-  2*mu*nu/(1 - 2*nu)
-}
-
 #' Rudnicki's response to point and step injection 
+#' 
 #' @param r,z numeric; receiver position (radial, depth-positive) [m]
 #' @param t numeric; time [s]
 #' @param zinj numeric; injection depth [m]
-#' @inheritParams biot_willis_effstress
-#' @param response character; the type of reponse be the impulsive or heaviside
+#' @inheritParams effstress
+#' @param response character; the type of response to output: 
+#' either the points-source impulsive (\code{'impulse'}) or Heaviside (\code{'step'}) response
+#' @param ... additional arguments
+#' @param x an object with class \code{'rudnicki.pt'}, e.g. from \code{\link{rudnicki86}}
+#' 
+#' @references 
+#' Rudnicki, J. W. (1986), Fluid mass sources and point forces in linear elastic diffusive solids, 
+#' \emph{Mechanics of Materials}, 5(4), 383-393, \url{https://doi.org/10.1016/0167-6636(86)90042-6}
+#'
 #' @export
+#' 
 #' @examples
 #' r <- 1
 #' zi <- 1
 #' t <- seq(1,1000,length.out=101)
 #' 
 #' # Impulse response
-#' rt <- rudnicki(r,1,t,zi)
-#' rtdeep <- rudnicki(r,10,t,zi)
+#' rt <- rudnicki86(r,1,t,zi)
+#' rtdeep <- rudnicki86(r,10,t,zi)
 #' 
 #' # Step response
-#' rt_s <- rudnicki(r,1,t,zi, response='step')
-#' rtdeep_s <- rudnicki(r,10,t,zi, response='step')
+#' rt_s <- rudnicki86(r,1,t,zi, response='step')
+#' rtdeep_s <- rudnicki86(r,10,t,zi, response='step')
 #' 
 #' layout(matrix(1:6,2))
 #' plot(rt, col=1)
@@ -62,15 +41,21 @@ lame_first <- function(nu, mu=1){
 #' plot(rtdeep_s, col=4)
 #' plot.new()
 #' 
-rudnicki <- function(r, z, t, 
+rudnicki86 <- function(r, z, t, 
                      zinj=0, mu=1, diffusiv=1, nu=0.25, nuu=0.33, B=1, 
-                     response=c('impulse','step')){
+                     response=NULL){
   
-  response <- match.arg(response)
+  response <- match.arg(response, c('impulse','step'))
+  check_range(B, 0, 1)
+  check_range(nu, 0, 0.5)
+  check_range(nuu, 0, 0.5)
+  stopifnot(diffusiv > 0)
+  stopifnot(mu > 0)
+  
   parms <- sprintf("nu=%s, nu_u=%s, B=%s, mu=%s, D=%s", nu, nuu, B, mu, diffusiv)
   message("calculating ", response, " response for ", parms)
   
-  alpha <- biot_willis_effstress(nu, nuu, B)
+  alpha <- effstress(nu, nuu, B)
   beta <- biot_compressibility(nu, nuu, B, mu)
   chi <- darcy_conductivity(nu, nuu, B, mu, diffusiv)
   la <- lame_first(nu, mu)
@@ -149,14 +134,14 @@ rudnicki <- function(r, z, t,
               pore.pressure = cbind(p),
               darcy.flux = cbind(p=dp, pz=dpz, pr=dpr)
   )
-  class(res) <- c('rudnicki','list')
+  class(res) <- c('rudnicki.pt','list')
   return(res)
 }
 
-#' @rdname rudnicki
+#' @rdname rudnicki86
 #' @export
-#' @method plot rudnicki 
-plot.rudnicki <- function(x, response=FALSE, ...){
+#' @method plot rudnicki.pt
+plot.rudnicki.pt <- function(x, response=FALSE, ...){
   
   typ <- x[['type']]
   

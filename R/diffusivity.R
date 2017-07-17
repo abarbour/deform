@@ -1,4 +1,9 @@
 #' Calculate hydraulic diffusivity of a fluid saturated medium
+#' @inheritParams segall85
+#' @param k. numeric; the permeability
+#' @param eta. numeric; the XXX
+#' @param phi. numeric; the XXX
+#' @param Beta. numeric; the XXX
 #' @export
 hydraulic_diffusivity <- function(k., eta., mu., B., nu.=1/4, nuu.=1/3){
   # segall85 eq 11

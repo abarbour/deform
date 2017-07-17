@@ -5,11 +5,12 @@
 #' 
 # @useDynLib deform
 # @exportPattern "^[[:alpha:]]+"
-#' 
+#
 # @importFrom Rcpp evalCpp
-#' @importFrom abind abind
-#' @importFrom plyr mutate
 #' @importFrom RCurl url.exists getURL
+#' @importFrom graphics legend lines matplot points segments
+#' @importFrom stats integrate na.omit pnorm qnorm
+#' @importFrom utils ? help
 #' 
 #' @seealso \code{\link{segall85}} for deformation associated with fluid extraction
 NULL

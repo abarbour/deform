@@ -51,6 +51,7 @@ segall89 <- function(help=FALSE){
 #' @param rho_f. numeric; the density of the fluid in the reservoir material
 #' @param ... additional parameters (currently unused)
 surface_displacement_reservoir <- function(x, depth=1, halfwidth=depth, thickness=depth/10, DelM.=1, nuu.=1/3, B.=1, rho_f.=1000, ...){
+  Xi_x_T <- Xi_z_T <- Xi_xx_T <- NULL
   sxi <- .surface_g_xi(x, depth, halfwidth, thickness)
   c. <- 2 * (1 + nuu.) * B. * DelM. / (3 * pi * rho_f.)
   sxi <- plyr::mutate(sxi,

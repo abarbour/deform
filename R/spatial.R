@@ -51,7 +51,7 @@ cart2pol <- function(x, y, z = NULL, dist.type = c('euclidean','manhattan'), rad
 #' @param verbose logical;
 #' @param Df an object to be coerced into a \code{\link{data.frame}}
 #' @param coords character; the names of the coordinates in \code{Df}
-#' @param p4,p4old; these are the proj4 strings for the new (\code{p4})
+#' @param p4,p4old character; these are the proj4 strings for the new (\code{p4})
 #'  and old (\code{p4old}) data.  More specifically, \code{p4} will be
 #'  the new projection (set by \code{\link{CRS}}), and  
 #'  \code{p4old} is the old projection (set by \code{\link{proj4string}}).
@@ -117,8 +117,8 @@ getEPSG <- function(ref.id=4326, verbose=TRUE, agency=NULL){
   #http://spatialreference.org/ref/epsg/4326/proj4/
   ref.url <- sprintf("%s/%s/proj4/", agency.root(agency), ref.id)
   if (verbose) message(ref.url)
-  stopifnot(url.exists(ref.url))
-  prj <- getURL(ref.url)
+  stopifnot(RCurl::url.exists(ref.url))
+  prj <- RCurl::getURL(ref.url)
   return(prj)
 }
 
