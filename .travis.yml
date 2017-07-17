@@ -19,10 +19,6 @@ before_install:
 r_packages:
   - covr
   - rgdal
-#  - rgeos
-  
-#r_binary_packages:
-#  - rgdal
 
 notifications:
  email:
