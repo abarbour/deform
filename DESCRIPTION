@@ -14,7 +14,7 @@ Description: Crustal deformation modeling tools.  Currently this
     (3) Rudnicki's impulsive/Heaviside injection point-source.
 License: GPL
 Depends:
-    rgdal (>= 0.9-2)
+    rgdal (>= 0.8-16)
 Imports:
     Rcpp (>= 0.11.2),
     raster,
