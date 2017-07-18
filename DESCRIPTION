@@ -1,23 +1,22 @@
 Package: deform
 Type: Package
 Title: Crustal deformation modeling tools in R
-Version: 0.0-10.9999
-Date: 2017-07-17
+Version: 0.0.9999
+Date: 2017-07-18
 Author: Andrew J. Barbour; some of these tools were
     adapted from Matlab(tm) codes by Brendan Crowell (UW),
     and Francois Beauducel (IPGP).
 Maintainer: A.J. Barbour <andy.barbour@gmail.com>
 Description: Crustal deformation modeling tools.  Currently this
-    code supports calculation of deformation associated with
-    (1) a depleting reservoir using Geertsma's model or Segall's models, 
-    (2) a spherical volume source using a Mogi's model, and
-    (3) Rudnicki's impulsive/Heaviside injection point-source.
+    code supports calculation of deformation induced by
+    depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989),
+    spherical cavities (i.e., Mogi, 1958), and
+    injection point-source (i.e., Rudnicki, 1986).
 License: GPL
-Depends:
-    rgdal (>= 0.8-16)
 Imports:
     Rcpp (>= 0.11.2),
     RcppFaddeeva,
+    rgdal (>= 0.8-16),
     raster,
     maptools,
     abind,

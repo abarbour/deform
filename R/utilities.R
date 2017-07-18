@@ -1,9 +1,38 @@
 #' Error functions
 #' 
-#' @note These remain for posterity; we now use RcppFaddeeva's implementation (\code{\link[RcppFaddeeva]{erf}}, etc.).
+#' @note These generally use \code{\link[stats]{pnorm}} and \code{\link[stats]{qnorm}}; but, where necessary, 
+#' RcppFaddeeva's implementation (\code{\link[RcppFaddeeva]{erf}}, etc.) is used.
+#' 
+#' @details
+#' \code{erf_re} and \code{erfc_re} calculate 
+#' the error function and the complementary error function, 
+#' respectively; \code{erfc1_re} calculates the complementary error 
+#' function for n=1 (see references), and
+#' \code{erfc0_re} is equivalent to \code{erfc_re} (n=0).
+#' 
+#' \code{ierf_re} and \code{ierfc_re} calculate the inverse error function 
+#' and the inverse complementary error function, respectively.
 #' 
 #' @param x numeric
 #' @export
+#' @examples
+#' x <- seq(0,1,by=0.1)
+#' erf_re(x)
+#' erfc_re(x)
+#' ierfc_re(x)
+#' 
+#' # a known identity
+#' identical(erfc_re(Inf), 0)
+#' 
+#' @references
+#' Error function: \url{http://mathworld.wolfram.com/Erf.html}
+#' 
+#' Inverse error function: \url{http://mathworld.wolfram.com/InverseErf.html}
+#' 
+#' Complementary error function: \url{http://mathworld.wolfram.com/Erfc.html}
+#' 
+#' Inverse complementary error function: \url{http://mathworld.wolfram.com/InverseErfc.html}
+#' 
 erf_re <- function(x){
   2 * pnorm(x * sqrt(2)) - 1
 }
@@ -14,6 +43,16 @@ erfc_re <- function(x){
 }
 #' @rdname erf_re
 #' @export
+erfc0_re <- function(x){
+  Re(RcppFaddeeva::erfc(x))
+}
+#' @rdname erf_re
+#' @export
+erfc1_re <- function(x){
+  exp(-x^2) / sqrt(pi) - x * Re(RcppFaddeeva::erfc(x))
+}
+#' @rdname erf_re
+#' @export
 ierf_re <- function (x){
   qnorm((1 + x) / 2) / sqrt(2)
 }
@@ -21,11 +60,6 @@ ierf_re <- function (x){
 #' @export
 ierfc_re <- function (x){
   qnorm(x/2, lower.tail = FALSE) / sqrt(2)
-}
-#' @rdname erf_re
-#' @export
-ierfc2_re <- function(x){
-  exp(-1 * x^2) / sqrt(pi) - x * erfc(x)
 }
 
 #' Check whether a quantity is wihin an acceptable range

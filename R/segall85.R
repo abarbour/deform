@@ -164,7 +164,7 @@ timevarying_fluidmass <- function(x, Time, Vdot., L., t., HD., phi.){
   # [ ] account for multiple Vdot.
   #
   FUN <- function(ti){
-    -1 * Vdot. * sqrt(ti / HD.) * ierfc2(sqrt(x^2 / (4 * HD. * ti))) / (L. * t. * phi.)
+    -1 * Vdot. * sqrt(ti / HD.) * erfc1_re(sqrt(x^2 / (4 * HD. * ti))) / (L. * t. * phi.)
   }
   apply(matrix(Time), 1, FUN)
 }
@@ -193,7 +193,7 @@ timevarying_surface_displacement <- function(x, Time, Vdot., B., L., D., HD., nu
     .fun <- function(Xi., dXi.=0, X.=x, ti.=ti){
       # from the spatio-temporal component
       ti.d <- Xi.^2 / (4 * HD. * ti.)
-      ierfc2(sqrt(ti.d))/((D.)^2 + (X. - Xi. - dXi.)^2)
+      erfc1_re(sqrt(ti.d))/((D.)^2 + (X. - Xi. - dXi.)^2)
     }
     #
     # integrate over Xi
@@ -258,7 +258,7 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
     .fun <- function(Xi., dXi.=0, X.=x, Z.=0, ti.=ti){
       # from the spatio-temporal component
       ti.d <- Xi.^2 / (4 * HD. * ti.)
-      C1 <- ierfc2(sqrt(ti.d))
+      C1 <- erfc1_re(sqrt(ti.d))
       #
       xmxi <- (X. - Xi. - dXi.)^2
       zpd <- (Z. + D.)
@@ -282,7 +282,7 @@ timevarying_porepressure <- function(x, z, Time, Vdot., B., L., D., HD., t., mu.
         } else {
           #message(paste("integration",zi$message))
           ti.d <- xxzz[1]^2 / (4 * HD. * ti.)
-          C1 <- (1 - 2*nu.) * ierfc2(sqrt(ti.d)) / ((nuu. - nu.) * (1 - 2*nuu.))
+          C1 <- (1 - 2*nu.) * erfc1_re(sqrt(ti.d)) / ((nuu. - nu.) * (1 - 2*nuu.))
           C2 <- -2/(pi * (1 - nuu.))
           C1 + C2 * zi$value
         }

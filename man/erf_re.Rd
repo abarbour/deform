@@ -3,20 +3,23 @@
 \name{erf_re}
 \alias{erf_re}
 \alias{erfc_re}
+\alias{erfc0_re}
+\alias{erfc1_re}
 \alias{ierf_re}
 \alias{ierfc_re}
-\alias{ierfc2_re}
 \title{Error functions}
 \usage{
 erf_re(x)
 
 erfc_re(x)
 
+erfc0_re(x)
+
+erfc1_re(x)
+
 ierf_re(x)
 
 ierfc_re(x)
-
-ierfc2_re(x)
 }
 \arguments{
 \item{x}{numeric}
@@ -24,6 +27,36 @@ ierfc2_re(x)
 \description{
 Error functions
 }
+\details{
+\code{erf_re} and \code{erfc_re} calculate 
+the error function and the complementary error function, 
+respectively; \code{erfc1_re} calculates the complementary error 
+function for n=1 (see references), and
+\code{erfc0_re} is equivalent to \code{erfc_re} (n=0).
+
+\code{ierf_re} and \code{ierfc_re} calculate the inverse error function 
+and the inverse complementary error function, respectively.
+}
 \note{
-These remain for posterity; we now use RcppFaddeeva's implementation (\code{\link[RcppFaddeeva]{erf}}, etc.).
+These generally use \code{\link[stats]{pnorm}} and \code{\link[stats]{qnorm}}; but, where necessary, 
+RcppFaddeeva's implementation (\code{\link[RcppFaddeeva]{erf}}, etc.) is used.
+}
+\examples{
+x <- seq(0,1,by=0.1)
+erf_re(x)
+erfc_re(x)
+ierfc_re(x)
+
+# a known identity
+identical(erfc_re(Inf), 0)
+
+}
+\references{
+Error function: \url{http://mathworld.wolfram.com/Erf.html}
+
+Inverse error function: \url{http://mathworld.wolfram.com/InverseErf.html}
+
+Complementary error function: \url{http://mathworld.wolfram.com/Erfc.html}
+
+Inverse complementary error function: \url{http://mathworld.wolfram.com/InverseErfc.html}
 }

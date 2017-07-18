@@ -60,8 +60,8 @@ rudnicki86 <- function(r, z, t,
   chi <- darcy_conductivity(nu, nuu, B, mu, diffusiv)
   la <- lame_first(nu, mu)
 
-  ptres <- .rudnicki_pt(Z=z, Zinj=zinj, R=r, Time=`t`, 
-                        Diffusiv=diffusiv, Alpha=alpha, Beta=beta, Chi=chi, Lambd=la, Mu=mu, 
+  ptres <- .rudnicki_pt(Z=z, Zinj=zinj, R=r, Time=`t`, Diffusiv = diffusiv, 
+                        Alpha = alpha, Beta = beta, Chi = chi, Lambda = la, Mu = mu, 
                         impulse=response == 'impulse')
   
   ptres[['params']][['input']] <- list(nu, nuu, B, diffusiv)
@@ -87,8 +87,8 @@ rudnicki86 <- function(r, z, t,
     eta3 <- eta^3
     eta4 <- eta^4
     
-    eta_erf <- Re(RcppFaddeeva::erf(eta))
-    eta_erfc <- Re(RcppFaddeeva::erfc(eta))
+    eta_erf <- erf_re(eta)
+    eta_erfc <- erfc_re(eta)
     
     sqpi <- sqrt(pi)
     expeta <- exp(-etasq)
