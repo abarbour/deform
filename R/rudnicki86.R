@@ -18,7 +18,7 @@
 #' @examples
 #' r <- 1
 #' zi <- 1
-#' t <- seq(1,1000,length.out=101)
+#' t <- 10^seq(-4, 1, length.out=301)
 #' 
 #' # Impulse response
 #' rt <- rudnicki86(r,1,t,zi)
@@ -28,19 +28,19 @@
 #' rt_s <- rudnicki86(r,1,t,zi, response='step')
 #' rtdeep_s <- rudnicki86(r,10,t,zi, response='step')
 #' 
-#' layout(matrix(1:6,2))
+#' layout(matrix(1:10, 2, byrow=TRUE))
 #' plot(rt, col=1)
-#' plot.new()
+#' plot(rt, response=TRUE, col=1)
 #' 
 #' plot(rtdeep, col=2)
-#' plot.new()
+#' plot(rtdeep, response=TRUE, col=2)
 #' 
 #' plot(rt_s, col=3)
-#' plot.new()
+#' plot(rt_s, response=TRUE, col=3)
 #' 
 #' plot(rtdeep_s, col=4)
-#' plot.new()
-#' 
+#' plot(rtdeep_s, response=TRUE, col=4)
+#'
 rudnicki86 <- function(r, z, t, 
                      zinj=0, mu=1, diffusiv=1, nu=0.25, nuu=0.33, B=1, 
                      response=NULL){
@@ -59,95 +59,115 @@ rudnicki86 <- function(r, z, t,
   beta <- biot_compressibility(nu, nuu, B, mu)
   chi <- darcy_conductivity(nu, nuu, B, mu, diffusiv)
   la <- lame_first(nu, mu)
-  
-  Zrel <- z - zinj
-  p0 <- 1/(4*pi*chi)
-  u0 <- p0 * alpha/2/(la + 2*mu)
-  
-  Rsq <- r^2
-  Dis <- sqrt(Zrel^2 + Rsq)
-  Dis3 <- Dis^3
-  
-  eta <- Dis/sqrt(diffusiv * `t`)/2
-  etasq <- eta^2
-  eta3 <- eta^3
-  eta4 <- eta^4
-  
-  eta_erf <- deform::erf(eta)
-  eta_erfc <- deform::erfc(eta)
-  
-  sqpi <- sqrt(pi)
-  
-  fct  <- eta_erfc + eta_erf/etasq/2 - exp(-etasq)/eta/sqpi
-  pfct <- -eta_erf/eta3 + 2*exp(-etasq)/etasq/sqpi
-  
-  perfc <- -2 * exp(-etasq)/sqpi
-  ppfct <- perfc/eta3 + 3*eta_erf/eta4 - 4*exp(-etasq)*(1 + etasq)/sqpi/eta3
-  doteta <- -eta/t/2
-  
-  if (response == 'impulse'){
-    #
-    # response to impulsive source
-    #
-    C <- doteta/Dis
-    uz <- C*u0*pfct*Zrel
-    ur <- C*u0*pfct*r
-    p <- C*p0*perfc
-    
-    ezz <- u0*(pfct*Rsq + (ppfct*eta + pfct)*Zrel^2)*doteta / Dis3
-    err <- u0*(pfct*Zrel^2 + (ppfct*eta + pfct)*Rsq)*doteta / Dis3
-    ett <- C*u0*pfct
-    ezr <- u0*eta*ppfct*doteta*Zrel*r / Dis3
-    
-    dp <- p0*doteta*(perfc + 2*(1 - 2*etasq)*exp(-etasq)/sqpi)
-  
-  } else {
-    #
-    # response to heaviside source
-    #
-    
-    uz <- u0*fct*Zrel/Dis
-    ur <- u0*fct*r/Dis
-    p <- p0 * eta_erf / Dis
-    
-    ezz <- u0*(fct*Rsq + pfct*eta*Zrel^2) / Dis3
-    err <- u0*(fct*Zrel^2 + pfct*eta*Rsq) / Dis3
-    ett <- u0*fct / Dis
-    ezr <- u0*(eta*pfct - fct)*Zrel*r / Dis3
-    
-    dp <- p0*(eta_erfc + 2*eta*exp(-etasq)/sqpi)
 
-  }
+  ptres <- .rudnicki_pt(Z=z, Zinj=zinj, R=r, Time=`t`, 
+                        Diffusiv=diffusiv, Alpha=alpha, Beta=beta, Chi=chi, Lambd=la, Mu=mu, 
+                        impulse=response == 'impulse')
   
-  tlt <- -ezr
-  dpz <- -dp*Zrel / Dis3
-  dpr <- -dp*r / Dis3
-  
-  res <- list(type = response,
-              params = list(spatial=list(r, z, zinj),
-                            params=list(nu, nuu, B, diffusiv),
-                            calc_params=list(alpha, beta, chi, lambda = la)),
-              time = `t`,
-              displacement = cbind(z=uz, r=ur),
-              strain = cbind(zz = ezz, rr = err, tt = ett, zr = ezr),
-              tilt = cbind(zr=tlt),
-              pore.pressure = cbind(p),
-              darcy.flux = cbind(p=dp, pz=dpz, pr=dpr)
-  )
-  class(res) <- c('rudnicki.pt','list')
-  return(res)
+  ptres[['params']][['input']] <- list(nu, nuu, B, diffusiv)
+
+  class(ptres) <- c('rudnicki.pt','list')
+  return(ptres)
 }
+
+.rudnicki_pt <- function(Z, Zinj, R, Time,
+                         Diffusiv, Alpha, Beta, Chi, Lambda, Mu,
+                         impulse = TRUE) {
+    Zrel <- Z - Zinj
+    p0 <- 1 / 4 / pi / Chi
+    u0 <- p0 * Alpha / 2 / (Lambda + 2 * Mu)
+    
+    Rsq <- R^2
+    Dis <- sqrt(Zrel^2 + Rsq)
+    Dis3 <- Dis^3
+    
+    eta <- Dis / 2 / sqrt(Diffusiv * Time)
+    dot_eta <- -eta / Time / 2
+    etasq <- eta^2
+    eta3 <- eta^3
+    eta4 <- eta^4
+    
+    eta_erf <- Re(RcppFaddeeva::erf(eta))
+    eta_erfc <- Re(RcppFaddeeva::erfc(eta))
+    
+    sqpi <- sqrt(pi)
+    expeta <- exp(-etasq)
+    
+    fct  <- eta_erfc + eta_erf / etasq / 2 - expeta / eta / sqpi
+    pfct <- -eta_erf / eta3 + 2 * expeta / etasq / sqpi
+    
+    perfc <- -2 * expeta / sqpi
+    ppfct <- perfc / eta3 + 3 * eta_erf / eta4 - 4 * expeta * (1 + etasq) / sqpi / eta3
+    
+    if (impulse) {
+      #
+      # response to impulsive source
+      #
+      C <- dot_eta / Dis
+      uz <- C * u0 * pfct * Zrel
+      ur <- C * u0 * pfct * R
+      p <- C * p0 * perfc
+      
+      ezz <- u0 * (pfct * Rsq + (ppfct * eta + pfct) * Zrel^2) * dot_eta / Dis3
+      err <- u0 * ((ppfct * eta + pfct) * Rsq + pfct * Zrel^2) * dot_eta / Dis3
+      ett <- C * u0 * pfct
+      ezr <- u0 * eta * ppfct * dot_eta * Zrel * R / Dis3
+      
+      dp <- p0 * dot_eta * (perfc + 2 * (1 - 2 * etasq) * expeta / sqpi)
+      
+    } else {
+      #
+      # response to heaviside source
+      #
+      
+      uz <- u0 * fct * Zrel / Dis
+      ur <- u0 * fct * R / Dis
+      p <- p0 * eta_erf / Dis
+      
+      ezz <- u0 * (fct * Rsq  +  pfct * eta * Zrel^2) / Dis3
+      err <- u0 * (pfct * eta * Rsq  +  fct * Zrel^2) / Dis3
+      ett <- u0 * fct / Dis
+      ezr <- u0 * (eta * pfct - fct) * Zrel * R / Dis3
+      
+      dp <- p0 * (eta_erfc + 2 * eta * expeta / sqpi)
+      
+    }
+    
+    tlt <- -ezr
+    dpz <- -dp * Zrel / Dis3
+    dpr <- -dp * R / Dis3
+    
+    res <- list(
+      is.impulse = impulse,
+      params = list(
+        spatial = list(R, Z, Zinj),
+        params = list(Diffusiv, Alpha, Beta, Chi, Lambda, Mu)
+      ),
+      time = Time,
+      displacement = cbind(z = uz, r = ur),
+      strain = cbind(
+        zz = ezz,
+        rr = err,
+        tt = ett,
+        zr = ezr
+      ),
+      tilt = cbind(zr = tlt),
+      pore.pressure = cbind(p),
+      darcy.flux = cbind(p = dp, pz = dpz, pr = dpr)
+    )
+    return(res)
+  }
 
 #' @rdname rudnicki86
 #' @export
 #' @method plot rudnicki.pt
 plot.rudnicki.pt <- function(x, response=FALSE, ...){
   
-  typ <- x[['type']]
+  typ <- ifelse(x[['is.impulse']], "Impulse", "Step")
   
   xt <- as.vector(x[['time']])
   
-  app <- ifelse(response, " (response)","")
+  app <- ifelse(response, "\n(response)", "")
   
   .addleg <- function(yn){
     ny <- length(yn)

@@ -1,27 +1,30 @@
 #' Error functions
+#' 
+#' @note These remain for posterity; we now use RcppFaddeeva's implementation (\code{\link[RcppFaddeeva]{erf}}, etc.).
+#' 
 #' @param x numeric
 #' @export
-erf <- function(x){
+erf_re <- function(x){
   2 * pnorm(x * sqrt(2)) - 1
 }
-#' @rdname erf
+#' @rdname erf_re
 #' @export
-erfc <- function(x){
+erfc_re <- function(x){
   2 * pnorm(x * sqrt(2), lower.tail = FALSE)
 }
-#' @rdname erf
+#' @rdname erf_re
 #' @export
-ierf <- function (x){
+ierf_re <- function (x){
   qnorm((1 + x) / 2) / sqrt(2)
 }
-#' @rdname erf
+#' @rdname erf_re
 #' @export
-ierfc <- function (x){
+ierfc_re <- function (x){
   qnorm(x/2, lower.tail = FALSE) / sqrt(2)
 }
-#' @rdname erf
+#' @rdname erf_re
 #' @export
-ierfc2 <- function(x){
+ierfc2_re <- function(x){
   exp(-1 * x^2) / sqrt(pi) - x * erfc(x)
 }
 

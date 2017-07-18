@@ -40,7 +40,7 @@ Rudnicki's response to point and step injection
 \examples{
 r <- 1
 zi <- 1
-t <- seq(1,1000,length.out=101)
+t <- 10^seq(-4, 1, length.out=301)
 
 # Impulse response
 rt <- rudnicki86(r,1,t,zi)
@@ -50,18 +50,18 @@ rtdeep <- rudnicki86(r,10,t,zi)
 rt_s <- rudnicki86(r,1,t,zi, response='step')
 rtdeep_s <- rudnicki86(r,10,t,zi, response='step')
 
-layout(matrix(1:6,2))
+layout(matrix(1:10, 2, byrow=TRUE))
 plot(rt, col=1)
-plot.new()
+plot(rt, response=TRUE, col=1)
 
 plot(rtdeep, col=2)
-plot.new()
+plot(rtdeep, response=TRUE, col=2)
 
 plot(rt_s, col=3)
-plot.new()
+plot(rt_s, response=TRUE, col=3)
 
 plot(rtdeep_s, col=4)
-plot.new()
+plot(rtdeep_s, response=TRUE, col=4)
 
 }
 \references{

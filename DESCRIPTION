@@ -17,6 +17,7 @@ Depends:
     rgdal (>= 0.8-16)
 Imports:
     Rcpp (>= 0.11.2),
+    RcppFaddeeva,
     raster,
     maptools,
     abind,
