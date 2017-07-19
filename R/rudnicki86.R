@@ -70,6 +70,7 @@ rudnicki86 <- function(r, z, t,
   return(ptres)
 }
 
+#' @export
 .rudnicki_pt <- function(Z, Zinj, R, Time,
                          Diffusiv, Alpha, Beta, Chi, Lambda, Mu,
                          impulse = TRUE) {
