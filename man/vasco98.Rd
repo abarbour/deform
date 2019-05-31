@@ -10,7 +10,8 @@ vasco98(help = FALSE)
 
 .surface_g_pt(x = 0, x_src = 0, z_src = 0, nuu. = 1/3)
 
-surface_displacement_point(x, depth, delV., B. = 1, rho_f. = 1000, tol, ...)
+surface_displacement_point(x, depth, delV., B. = 1, rho_f. = 1000, tol,
+  ...)
 }
 \arguments{
 \item{help}{logical; load documentation for \code{\link{vasco98}}}

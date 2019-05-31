@@ -9,7 +9,7 @@ Author: Andrew J. Barbour; some of these tools were
 Maintainer: A.J. Barbour <andy.barbour@gmail.com>
 Description: Crustal deformation modeling tools.  Currently this
     code supports calculation of deformation induced by
-    depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989),
+    depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989, 1992),
     spherical cavities (i.e., Mogi, 1958), and
     injection point-source (i.e., Rudnicki, 1986).
 License: GPL
@@ -31,4 +31,4 @@ Suggests:
     testthat,
     covr
 LinkingTo: Rcpp
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

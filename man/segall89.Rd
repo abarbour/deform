@@ -12,8 +12,8 @@ segall89(help = FALSE)
 .surface_g_xi(x, depth, halfwidth, thickness)
 
 surface_displacement_reservoir(x, depth = 1, halfwidth = depth,
-  thickness = depth/10, DelM. = 1, nuu. = 1/3, B. = 1, rho_f. = 1000,
-  ...)
+  thickness = depth/10, DelM. = 1, nuu. = 1/3, B. = 1,
+  rho_f. = 1000, ...)
 }
 \arguments{
 \item{help}{logical; load documentation for \code{\link{segall89}}}
