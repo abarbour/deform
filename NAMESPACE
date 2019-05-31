@@ -3,6 +3,7 @@
 S3method(plot,rudnicki.pt)
 export(.rudnicki_pt)
 export(.setleft)
+export(.surface_J_ringdisk)
 export(.surface_g)
 export(.surface_g_pdisk)
 export(.surface_g_pt)
