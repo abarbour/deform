@@ -51,10 +51,10 @@ if (!exists("gps") | redo){
 r <- 10**seq(0.9, 2, length.out=91)
 Pa <- 80e3 #Pa (N / m^2)
 # rescale pressure to maintain unit consistency
-pressure <- Pa * (1000^2)
+pressure <- 2.5 * Pa * (1000^2)
 # Dimensions of inflating reservoir
 disk.radius <- 10
-disk.thickness <- 15
+disk.thickness <- 4 #15
 
 redo.comp <- TRUE
 if (!exists('res') | redo.comp) res <- surface_displacement_ringdisk(r, radius = disk.radius, thickness = disk.thickness, depth = disk.thickness / 2, p0 = pressure)
