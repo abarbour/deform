@@ -8,6 +8,7 @@
 #
 # @importFrom Rcpp evalCpp
 #' @importFrom RCurl url.exists getURL
+#' @importFrom Bessel BesselJ
 #' @importFrom graphics legend lines matplot points segments
 #' @importFrom stats integrate na.omit pnorm qnorm
 #' @importFrom utils ? help
