@@ -15,19 +15,18 @@ segall92 <- function(){
   ka <- k. * a.
   kr <- k. * r.
   kz <- k. * z_prime.
-  J0 <- Bessel::BesselJ(kr, 0)
   J1 <- Bessel::BesselJ(kr, 1)
-  J1a <- Bessel::BesselJ(ka, 1)
   E <- exp(-1 * kz)
-  if (radial.){
+  JDisp <- if (radial.){
     # radial displacements at the surface [ur(r,0)]
     # Wang (2000) equation 9.29
-    J1 * J1a * E
+    Bessel::BesselJ(ka, 1)
   } else {
     # vertical displacements at the surface [uz(r,0)]
     # Wang (2000) equation 9.30
-    J0 * J1 * E
+    Bessel::BesselJ(kr, 0)
   }
+  exp(-1 * kz) * J1 * JDisp
 }
 
 #' @rdname segall92
@@ -37,10 +36,13 @@ segall92 <- function(){
 #' @param p0 numeric; the (uniform) pressure change inside the circular-disk source
 #' @param nuu numeric; the undrained Poisson's ratio
 #' @param ShearModulus numeric; the elastic shear modulus
-#' @param BiotCoef numeric; Biot's coefficient (usually written as \eqn{\alpha})
+#' @param BiotCoef numeric; Biot's coefficient (usually written as \eqn{\alpha});
+#'  Note that this is converted to Geertsma's coefficent by \code{BiotCoef/ShearModulus}
 #' @param verbose logical; should messages be given?
 #' @param x.lim numeric; the limit of integration in the radial direction
-#' @param tol_pow numeric; the exponent applied to \code{.Machine$double.eps} used as the integration tolerance (see \code{\link{integrate}})
+#' @param tol_pow numeric; the exponent applied to \code{.Machine$double.eps} used as 
+#' the integration tolerance (see \code{\link{integrate}}); \emph{Increasing this to
+#' increase inegration accuracy will increase computation time}
 #' @param nsub integer; the number of subdivisions in the integration (see \code{\link{integrate}})
 #' 
 #' @references Segall, P. (1992), Induced stresses due to fluid extraction from axisymmetric reservoirs,

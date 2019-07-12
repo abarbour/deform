@@ -23,13 +23,16 @@ midpoint-depth must be at least \code{thickness/2}}
 
 \item{ShearModulus}{numeric; the elastic shear modulus}
 
-\item{BiotCoef}{numeric; Biot's coefficient (usually written as \eqn{\alpha})}
+\item{BiotCoef}{numeric; Biot's coefficient (usually written as \eqn{\alpha});
+Note that this is converted to Geertsma's coefficent by \code{BiotCoef/ShearModulus}}
 
 \item{verbose}{logical; should messages be given?}
 
 \item{x.lim}{numeric; the limit of integration in the radial direction}
 
-\item{tol_pow}{numeric; the exponent applied to \code{.Machine$double.eps} used as the integration tolerance (see \code{\link{integrate}})}
+\item{tol_pow}{numeric; the exponent applied to \code{.Machine$double.eps} used as 
+the integration tolerance (see \code{\link{integrate}}); \emph{Increasing this to
+increase inegration accuracy will increase computation time}}
 
 \item{nsub}{integer; the number of subdivisions in the integration (see \code{\link{integrate}})}
 }

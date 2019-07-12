@@ -1,8 +1,8 @@
 Package: deform
 Type: Package
 Title: Crustal deformation modeling tools in R
-Version: 0.0.9999
-Date: 2019-06-07
+Version: 0.0.999
+Date: 2019-07-12
 Author: Andrew J. Barbour; some of these tools were
     adapted from Matlab(tm) codes by Brendan Crowell (UW),
     and Francois Beauducel (IPGP).
