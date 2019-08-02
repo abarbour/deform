@@ -4,6 +4,48 @@ segall92 <- function(){
   cat("\nThis function is simply a placeholder. See the documentation ( `?segall92` ).\n")
 }
 
+.Inmt_segall92 <- function(n=1, m=1, tee=1, C=0, 
+                           k, a, r,
+                           nsub, tol_pow){
+  # Bessel functions for integration eq 58
+  Jn <- function(k, a, n) Bessel::BesselJ(k * a, n)
+  Jm <- function(k, r, m) Bessel::BesselJ(k * r, m)
+  .to_integrate <- function(k..) Jn(k..) * Jm(k..) * k.. ^ tee * exp(-1 * k.. * C)
+  # Integration parameters
+  nsub <- ifelse(missing(nsub), 101L, as.integer(nsub))
+  tol <- .Machine$double.eps ** ifelse(missing(tol_pow), 0.35, tol_pow)
+  int <- stats::integrate(.to_integrate, 
+                          lower=0, upper=x.lim, 
+                          stop.on.error=FALSE, 
+                          k.. = k, 
+                          subdivisions = nsub, 
+                          rel.tol = tol)
+  int[['value']]
+}
+
+.stress_G_segall92 <- function(k., r., a., z., z_prime., nu.){
+  # Green's functions for stresses (e.g., eq 59)
+  zdiff <- z. - z_prime.
+  zsum <- z. + z_prime.
+  #epsilon: -1 for z > d, and 1 for z < d
+  epsilon <- ifelse(zdiff >= 0, -1, 1)
+  c1 <- -1*epsilon*zdiff
+  c2 <- zsum
+  #
+  I1 <- .Inmt_segall92(1,0,1,c1,k.,a.,r.)
+  I2 <- (3 + 4*nu.)*.Inmt_segall92(1,0,1,c2,k.,a.,r.)
+  I3 <- -2*z*.Inmt_segall92(1,2,0,c2,k.,a.,r.)
+  I4 <- -1*.Inmt_segall92(1,2,1,c1,k.,a.,r.)
+  I5 <- -1*(3 - 4*nu.)*.Inmt_segall92(1,2,1,c2,k.,a.,r.)
+  I6 <- 2*z*.Inmt_segall92(1,2,2,k.,a.,r.)
+  # sum them together to get Grr
+  return((I1 + I2 + I3 + I4 + I5 + I6)*a./2)
+}
+
+.green_segall92_stresses <- function(){
+
+}
+
 # Integral in the Green's function that must be integrated
 # @rdname segall92
 # @export
