@@ -162,7 +162,7 @@ surface_displacement_ringdisk <- function(x, radius, depth, thickness,
 		int <- stats::integrate(.green_segall92, lower=0, upper=x.lim, stop.on.error=FALSE, r. = r.., ..., subdivisions = nsub, rel.tol=tol)
 		int[['value']]
 	}
-	   
+	
    	if (verbose) message("Calculating displacements... r")
 	ur_ <- sapply(xpos, .fun, radial.=TRUE, a. = radius, z_prime. = depth)
 	ur <- scaling * ur_
@@ -174,6 +174,7 @@ surface_displacement_ringdisk <- function(x, radius, depth, thickness,
 	if (verbose) message("Calculating strain...")
 	err <- deform::Uniaxial_extension(x, ur)$dXdx
 	
+	scaling <- unname(scaling)
 	data.frame(x, scaling, ur, uz, err)
 	
 } 

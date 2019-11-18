@@ -439,22 +439,23 @@ plot.stress_field_G <- function(x, finer=2.2, ...){
 	
 }
 
-#.stress_G_segall92(5,5)
-
-area.delaware <- 6843 #km^2
-radius.delaware <- sqrt(area.delaware/pi)
-depth.delaware <- 2.5 
-
-depths <- seq(0, 10, by=0.3)
-dists <- seq(0, ceiling(2.0*radius.delaware), by=2)
-
-redo.calc <- FALSE
-if (!exists("Scalc") | redo.calc) Scalc <- stress_field(dists, depths, source.radius=radius.delaware, source.depth=depth.delaware, source.thickness=0.3)
-
-pdf("~/Desktop/figs/Delaware_stresses_%02d.pdf", height=3, width=7, onefile=FALSE)
-par(las=1, mar=c(3,3,2,1), tcl=-0.25, mgp=c(2,0.5,0))
-try(plot(Scalc))
-dev.off()
-
-#save(Scalc, file="files/Scalc.rda", compress='xz')
+# 
+# #.stress_G_segall92(5,5)
+# 
+# area.delaware <- 6843 #km^2
+# radius.delaware <- sqrt(area.delaware/pi)
+# depth.delaware <- 2.5 
+# 
+# depths <- seq(0, 10, by=0.3)
+# dists <- seq(0, ceiling(2.0*radius.delaware), by=2)
+# 
+# redo.calc <- FALSE
+# if (!exists("Scalc") | redo.calc) Scalc <- stress_field(dists, depths, source.radius=radius.delaware, source.depth=depth.delaware, source.thickness=0.3)
+# 
+# pdf("~/Desktop/figs/Delaware_stresses_%02d.pdf", height=3, width=7, onefile=FALSE)
+# par(las=1, mar=c(3,3,2,1), tcl=-0.25, mgp=c(2,0.5,0))
+# try(plot(Scalc))
+# dev.off()
+# 
+# #save(Scalc, file="files/Scalc.rda", compress='xz')
 
