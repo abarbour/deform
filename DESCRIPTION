@@ -1,8 +1,8 @@
 Package: deform
 Type: Package
-Title: Crustal deformation modeling tools in R
-Version: 0.0.999
-Date: 2019-07-12
+Title: Crustal Deformation Modeling Tools in R
+Version: 0.0.989
+Date: 2020-06-19
 Author: Andrew J. Barbour; some of these tools were
     adapted from Matlab(tm) codes by Brendan Crowell (UW),
     and Francois Beauducel (IPGP).
@@ -12,6 +12,7 @@ Description: Crustal deformation modeling tools.  Currently this
     depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989, 1992),
     spherical cavities (i.e., Mogi, 1958), and
     injection point-source (i.e., Rudnicki, 1986).
+    One can also calculate strains from Mag-Dist relationships.
 License: GPL
 Imports:
     Rcpp (>= 0.11.2),
@@ -32,5 +33,5 @@ Suggests:
     testthat,
     covr
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Encoding: UTF-8

@@ -5,8 +5,18 @@
 \alias{plot.rudnicki.pt}
 \title{Rudnicki's response to point and step injection}
 \usage{
-rudnicki86(r, z, t, zinj = 0, mu = 1, diffusiv = 1, nu = 0.25,
-  nuu = 0.33, B = 1, response = NULL)
+rudnicki86(
+  r,
+  z,
+  t,
+  zinj = 0,
+  mu = 1,
+  diffusiv = 1,
+  nu = 0.25,
+  nuu = 0.33,
+  B = 1,
+  response = NULL
+)
 
 \method{plot}{rudnicki.pt}(x, response = FALSE, ...)
 }

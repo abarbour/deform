@@ -3,11 +3,7 @@
 \docType{package}
 \name{deform}
 \alias{deform}
-\alias{deform-package}
 \title{The \code{deform} package: crustal deformation tools in R}
-\description{
-The \code{deform} package: crustal deformation tools in R
-}
 \seealso{
 \code{\link{segall85}} for deformation associated with fluid extraction
 }

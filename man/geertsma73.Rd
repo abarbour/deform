@@ -11,8 +11,15 @@ geertsma73(help = FALSE)
 
 .surface_g_pdisk(x = 0, x_src = 0, z_src = 0, nuu. = 1/3, mu., cm)
 
-surface_displacement_pressuredisk(x, depth, thickness, radius, delP.,
-  mu. = 5e+09, ...)
+surface_displacement_pressuredisk(
+  x,
+  depth,
+  thickness,
+  radius,
+  delP.,
+  mu. = 5e+09,
+  ...
+)
 }
 \arguments{
 \item{help}{logical; load documentation for \code{\link{geertsma73}}}

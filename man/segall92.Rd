@@ -7,9 +7,20 @@
 \usage{
 segall92()
 
-surface_displacement_ringdisk(x, radius, depth, thickness, p0 = 1,
-  nuu = 1/4, ShearModulus = 1.5e+10, BiotCoef = 1, verbose = TRUE,
-  x.lim, tol_pow, nsub)
+surface_displacement_ringdisk(
+  x,
+  radius,
+  depth,
+  thickness,
+  p0 = 1,
+  nuu = 1/4,
+  ShearModulus = 1.5e+10,
+  BiotCoef = 1,
+  verbose = TRUE,
+  x.lim,
+  tol_pow,
+  nsub
+)
 }
 \arguments{
 \item{x}{}
@@ -74,7 +85,7 @@ with(res,{
   text(5, 5, "Radial")
 
   lines(x, err, lty=3, lwd=1.5)
-  text(4.5, -0.75, "Radial strain\\n(mm/km)", pos=2)
+  text(4.5, -0.75, "Radial strain\n(mm/km)", pos=2)
 
   mtext(sprintf("Segall (1992) model with radius: \%s, Thickness: \%s, Depth: \%s", disk.radius, disk.thickness, disk.middepth), font=3)
 })

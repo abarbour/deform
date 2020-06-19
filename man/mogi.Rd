@@ -11,13 +11,20 @@
 \usage{
 mogi.volume(surface.distance, sphere.depth, Volume.change, ...)
 
-mogi.pressure(surface.distance, sphere.depth, sphere.radius,
-  Pressure.change, shear.modulus, Youngs.modulus, nu = 1/4, ...)
+mogi.pressure(
+  surface.distance,
+  sphere.depth,
+  sphere.radius,
+  Pressure.change,
+  shear.modulus,
+  Youngs.modulus,
+  nu = 1/4,
+  ...
+)
 
 .mogi_check(surface.distance, sphere.depth, sphere.radius = NULL)
 
-.mogi_calc(src, surface.distance, sphere.depth, nu = 1/4,
-  verbose = FALSE)
+.mogi_calc(src, surface.distance, sphere.depth, nu = 1/4, verbose = FALSE)
 }
 \arguments{
 \item{surface.distance}{numeric; [m] the radial distance (positive away) from the center of the spherical cavity, projected onto the surface}

@@ -4,8 +4,13 @@
 \alias{cart2pol}
 \title{Transform cartesian coordinates to polar}
 \usage{
-cart2pol(x, y, z = NULL, dist.type = c("euclidean", "manhattan"),
-  radians = TRUE)
+cart2pol(
+  x,
+  y,
+  z = NULL,
+  dist.type = c("euclidean", "manhattan"),
+  radians = TRUE
+)
 }
 \arguments{
 \item{x}{numeric vector, or numeric matrix (see \code{y})}

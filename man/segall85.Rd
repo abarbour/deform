@@ -17,11 +17,35 @@ surface_displacement(x, C. = 1, mu. = 1e+09, ...)
 
 timevarying_fluidmass(x, Time, Vdot., L., t., HD., phi.)
 
-timevarying_surface_displacement(x, Time, Vdot., B., L., D., HD.,
-  nuu. = 1/3, Pt.Sources.x = 0, x.lim)
+timevarying_surface_displacement(
+  x,
+  Time,
+  Vdot.,
+  B.,
+  L.,
+  D.,
+  HD.,
+  nuu. = 1/3,
+  Pt.Sources.x = 0,
+  x.lim
+)
 
-timevarying_porepressure(x, z, Time, Vdot., B., L., D., HD., t., mu.gpa.,
-  nu. = 1/4, nuu. = 1/3, Pt.Sources.x = 0, x.lim)
+timevarying_porepressure(
+  x,
+  z,
+  Time,
+  Vdot.,
+  B.,
+  L.,
+  D.,
+  HD.,
+  t.,
+  mu.gpa.,
+  nu. = 1/4,
+  nuu. = 1/3,
+  Pt.Sources.x = 0,
+  x.lim
+)
 }
 \arguments{
 \item{help}{logical; load documentation for \code{\link{segall85}}}
@@ -155,7 +179,7 @@ zzp <- timevarying_porepressure(.x.km.*1e3, .z.km.*1e3, .time., .Vdot.*c(1,2),
 layout(matrix(1:6,nr=2, byrow=TRUE))
 zl <- c(-10,-1)*1e3
 IMF <- function(n){
- yrlbl <- paste("\\nafter",.time.[n]/yr,"years")
+ yrlbl <- paste("\nafter",.time.[n]/yr,"years")
  if (n==1){ yrlbl <- paste("Pore Pressure Perturbation", yrlbl) }
  image(.x.km.,.z.km.,zzp[,,n], zlim=zl, main=yrlbl)
  # Locations of the sources
