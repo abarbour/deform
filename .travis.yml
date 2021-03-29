@@ -8,7 +8,7 @@ warnings_are_errors: false
 sudo: required
 # dist: precise
 # https://blog.travis-ci.com/2017-07-11-trusty-as-default-linux-is-coming
-dist: trusty
+# dist: trusty
 
 before_install:
   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
