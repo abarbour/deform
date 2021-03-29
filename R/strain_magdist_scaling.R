@@ -55,8 +55,12 @@ NULL
 #' @export
 static <- function(Mw, Distance.km, model="w88"){
   Distance.m <- Distance.km*1e3
-  1.5*Mw - 3*log10(Distance.m) - 2.3 - 9
+  1.5*Mw - 3*log10(Distance.m) - 2.3 # equation 4
 }
+
+# Hanks and Kanamori
+#' @export
+Mw2M0 <- function(Mw) 10 ** (1.5 * Mw + 9.1) # result in N*m
 
 #' @rdname magnitude-distance
 #' @export
