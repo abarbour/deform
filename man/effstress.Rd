@@ -3,6 +3,7 @@
 \name{effstress}
 \alias{effstress}
 \alias{poroelastic-parameters}
+\alias{poroelastic_stress_coefficient}
 \alias{biot_willis_effstress}
 \alias{biot_compressibility}
 \alias{darcy_conductivity}
@@ -10,6 +11,8 @@
 \title{Poroelastic parameters}
 \usage{
 effstress(nu, nuu, B)
+
+poroelastic_stress_coefficient(nu, nuu, B)
 
 biot_willis_effstress(K, Ks)
 
@@ -36,4 +39,11 @@ lame_first(nu, mu = 1)
 }
 \description{
 Poroelastic parameters
+}
+\details{
+\code{\link{effstress}} Wang (2000), equation 2.52 
+\code{\link{poroelastic_stress_coefficient}} Wang (2000), equation 3.47
+}
+\references{
+Wang, H.F. (2000)
 }

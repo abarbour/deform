@@ -7,7 +7,9 @@
 # @exportPattern "^[[:alpha:]]+"
 #
 # @importFrom Rcpp evalCpp
+#' @import dplyr
 #' @importFrom RCurl url.exists getURL
+#' @importFrom tibble tibble
 #' @importFrom Bessel BesselJ
 #' @importFrom graphics legend lines matplot points segments
 #' @importFrom stats integrate na.omit pnorm qnorm
