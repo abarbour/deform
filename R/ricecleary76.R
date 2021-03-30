@@ -38,6 +38,8 @@ rc76_edge_disloc_poro <- function(Times, slip, radial_dist, angFromEast=30,
   return(result)
 }
 
+examp <- function(){
+  
 library(dplyr)
 ti <- c(-100, -1, 0, 10**seq(-4, log10(6598), length.out=301))
 Mw <- 4.33
@@ -63,3 +65,6 @@ SrcArea <- M0 / (mu * bx)
 SrcRad <- sqrt(SrcArea / pi)
 print(c(Area=SrcArea, Rad=SrcRad))
 
+}
+
+if (FALSE) examp()
