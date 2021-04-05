@@ -1,3 +1,23 @@
+#' Rice and Cleary solutions
+#'
+#' @details \code{\link{rc76_edge_disloc_poro}} is the 2D solution
+#' to an edge dislocation (e.g., fault) embedded in a poroelastic medium
+#' 
+#' @param Times numeric; times to calculate at \code{depth} [s]
+#' @param slip numeric; relative slip along the edge dislocation [m]
+#' @param radial_dist numeric; distance from xxx to xxx [m]
+#' @param angFromEast 
+#' @param diffusiv 
+#' @param nuu 
+#' @param nu 
+#' @param B 
+#' @param mu 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 rc76_edge_disloc_poro <- function(Times, slip, radial_dist, angFromEast=30, 
                                        diffusiv=1, 
                                        nuu=0.33, nu=0.25, B = 0.6,
