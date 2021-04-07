@@ -8,7 +8,7 @@ rc76_edge_disloc_poro(
   Times,
   slip,
   radial_dist,
-  angFromEast = 30,
+  flt_angle = 30,
   diffusiv = 1,
   nuu = 0.33,
   nu = 0.25,
@@ -24,22 +24,22 @@ rc76_edge_disloc_poro(
 
 \item{radial_dist}{numeric; distance from xxx to xxx [m]}
 
-\item{angFromEast}{}
+\item{flt_angle}{numeric; angle counter clockwise from fault strike}
 
-\item{diffusiv}{}
+\item{diffusiv}{numeric; in plane hydraulic diffusivity [m^2/s]}
 
-\item{nuu}{}
+\item{nuu}{numeric; undrained Poisson's ratio [-]}
 
-\item{nu}{}
+\item{nu}{numeric; drained Poisson's ratio [-]}
 
-\item{B}{}
+\item{B}{numeric; Skempton's coefficient [-]}
 
-\item{mu}{}
+\item{mu}{numeric; elastic shear modulus [Pa]}
 
-\item{...}{}
+\item{...}{additional arguments}
 }
 \value{
-
+tibble
 }
 \description{
 Rice and Cleary solutions
@@ -47,4 +47,7 @@ Rice and Cleary solutions
 \details{
 \code{\link{rc76_edge_disloc_poro}} is the 2D solution
 to an edge dislocation (e.g., fault) embedded in a poroelastic medium
+}
+\examples{
+NULL
 }
