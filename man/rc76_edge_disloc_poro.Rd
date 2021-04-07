@@ -48,3 +48,6 @@ Rice and Cleary solutions
 \code{\link{rc76_edge_disloc_poro}} is the 2D solution
 to an edge dislocation (e.g., fault) embedded in a poroelastic medium
 }
+\examples{
+NULL
+}

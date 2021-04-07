@@ -18,6 +18,7 @@
 #' @export
 #'
 #' @examples
+#' NULL
 rc76_edge_disloc_poro <- function(Times, slip, radial_dist, angFromEast=30, 
                                        diffusiv=1, 
                                        nuu=0.33, nu=0.25, B = 0.6,
