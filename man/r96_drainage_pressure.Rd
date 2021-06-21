@@ -26,9 +26,9 @@ r96_drainage_pressure(
 
 \item{strain0}{numeric; static strain change [unscaled strain]}
 
-\item{B}{numeric; Skempton's coefficient B}
+\item{B}{numeric; Skempton's coefficient B [-]}
 
-\item{Ku}{numeric; undrained bulk modulus}
+\item{Ku}{numeric; undrained bulk modulus [Pa]}
 
 \item{...}{additional parameters}
 }
@@ -42,7 +42,7 @@ response to a static strain. The temporal change in pore
 pressure represents water table drainage as a function of time.
 }
 \examples{
-# Remake Fig 16
+# Remake Fig 16 in Roeloffs (1996)
 d2s <- 86400
 lti <- 10^seq(-3,0, length.out=21)
 ti <- unique(sort(c(0, lti, seq(-10, 50, length.out=201)) * d2s))
@@ -52,6 +52,8 @@ vert_c <- z^2 / 4 / zsq4c # vertical diffusivity
 r1  <- r96_drainage_pressure(Times=ti, depth=z, diffusiv=vert_c[1]) # 1 hour
 r2  <- r96_drainage_pressure(Times=ti, depth=z, diffusiv=vert_c[2]) # 1 day
 r3  <- r96_drainage_pressure(Times=ti, depth=z, diffusiv=vert_c[3]) # 30 days
+
+\dontrun{
 plot(c(-10, 50), c(-0.2,1.2), col=NA, xaxs='i', yaxs='i', xlab='TIME, IN DAYS', ylab='P(t)/BKu')
 lines(ti/d2s, r1, lty=2)
 lines(ti/d2s, r2, lty=3)
@@ -62,6 +64,7 @@ plot(range(10**lti), c(5e-2, 1), col=NA, xaxs='i', log='y', xlab='TIME, IN DAYS'
 lines(ti/d2s, r1, lty=2)
 lines(ti/d2s, r2, lty=3)
 lines(ti/d2s, r3)
+}
 }
 \references{
 Roeloffs, E. (1996),

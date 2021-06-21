@@ -62,7 +62,7 @@ ierfc_re <- function (x){
   qnorm(x/2, lower.tail = FALSE) / sqrt(2)
 }
 
-#' Check whether a quantity is wihin an acceptable range
+#' Check whether a quantity is within an acceptable range
 #' 
 #' @note This function throws and error if range of \code{x} is outside [\code{xmin},\code{xmax}].
 #' 

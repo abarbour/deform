@@ -1,15 +1,15 @@
 Package: deform
 Type: Package
 Title: Crustal Deformation Modeling Tools in R
-Version: 0.0.990
-Date: 2021-03-30
+Version: 0.0.991
+Date: 2021-06-21
 Author: Andrew J. Barbour; some of these tools were
     adapted from Matlab(tm) codes by Brendan Crowell (UW),
     and Francois Beauducel (IPGP).
 Maintainer: A.J. Barbour <andy.barbour@gmail.com>
 Description: Crustal deformation modeling tools.  Currently this
     code supports calculation of deformation induced by
-    depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989, 1992),
+    depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989, 1992; Lambert and Tsai, 2020),
     slipping faults (i.e., Rice and Cleary, 1976; Roeloffs, 1996),
     spherical cavities (i.e., Mogi, 1958), and
     injection point/step sources (i.e., Rudnicki, 1986).

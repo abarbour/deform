@@ -49,5 +49,29 @@ Rice and Cleary solutions
 to an edge dislocation (e.g., fault) embedded in a poroelastic medium
 }
 \examples{
-NULL
+
+# Pore pressure transient associated with near-field fault slip
+
+ti <- c(-100, -1, 0, 10**seq(-4, log10(6598), length.out=301))
+Mw <- 4.33
+M0 <- Mw2M0(Mw) #3.935501e+15 N*m for Mw 4.33
+bx <- 10^(-3.22 + 0.69 * Mw) #0.5
+rd <- 250
+mu <- 2e8
+Diffu <- 60
+rc <- rc76_edge_disloc_poro(ti, bx, rd, diffusiv=Diffu, mu=mu)
+nrc <- rc76_edge_disloc_poro(ti, bx, -rd, diffusiv=Diffu, mu=mu)
+all.equal(rc$pp, -nrc$pp)
+
+\dontrun{
+plot(pp / 1e3 + 5 ~ I(Times / 3600), rc, type='l', lwd=2, ylab='kPa', 
+     ylim=c(-8.8,36.9), yaxs='i', xaxs='i')
+axis(4)
+abline(v=1*60/3600, lty=3)
+rect(0,0,100,100)
+SrcArea <- M0 / (mu * bx)
+SrcRad <- sqrt(SrcArea / pi)
+print(c(Area=SrcArea, Rad=SrcRad))
+}
+
 }
