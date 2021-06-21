@@ -29,8 +29,12 @@ psi_angle <- function(Beta, is.deg=TRUE){
 	if (is.deg) Beta <- Beta * pi / 180
 	pi / 2 - Beta
 }
-beta_angle <- function(psi, is.deg=TRUE){
-	psi_angle(psi, is.deg)
+beta_angle <- function(psi, fric, is.deg=TRUE){
+	if (missing(fric)){
+		psi_angle(psi, is.deg)
+	} else {
+		pi /4 + atan(fric)/2
+	}
 }
 
 faultShearNorm_principal_stress <- function(S1, S3, Beta.deg){
