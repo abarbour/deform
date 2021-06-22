@@ -40,6 +40,8 @@ thk <- td/2
 ltd <- LambertTsai2020_Diffusive(x1=0, x2=1, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
 ltu <- LambertTsai2020_Uniform(x1=h., x2=1, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
 
+#> colnames(ltu[['Def']])
+#[1] "U1"  "U2"  "S11" "S12" "S22" "E11"
 with(ltd, matplot(pars$Time, Def, type='l', lty=c(1,2,1,3,5,1,3,1), col=c(1,1,2,2,2,3,3,4)))
 with(ltu, matplot(pars$x1, Def, ylim=c(-3,3), type='l', lty=c(1,2,1,3,5,1,3,1), col=c(1,1,2,2,2,3,3,4)))
 abline(v=hw*c(-1,1), col='grey')
@@ -83,13 +85,16 @@ d. <- h.[h. >= 0]
 d. <- d.[d. < max(d.)/1.5]
 Du <- lapply(d., do_calc_by_depth)
 
-str(Du,1)
+#str(Du,1)
 
-#cu <- sapply(Du, cfs_isoporo, theta=60, verbose=FALSE)
+cu <- sapply(Du, cfs_isoporo, theta=60, fric=fric, Skemp=skemp) #, verbose=FALSE)
 #cu <- sapply(Du, mean_stress)
-cu <- sapply(Du, max_shear)
+#cu <- sapply(Du, max_shear)
+#cu <- sapply(Du, ext1) # OK
+#cu <- sapply(Du, ext2) # OK
+#cu <- sapply(Du, shear) # out of wack for negative distances -- added kluge
+#str(cu,1)
 
-str(cu,1)
 xy <- list(x = h./td, y = d./td)
 Cu <- c(xy, list(z = cu))
 Cupos <- c(xy, list(z = 1*(cu>0)))
@@ -97,8 +102,8 @@ lCup <- c(xy, list(z = log10(cu)))
 lCun <- c(xy, list(z = log10(-cu)))
 
 fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']])), zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
-#image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.3))
+image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
 #contour(lCup, add=TRUE)
-#contour(Cu, add=TRUE)
 #contour(lCun, lty=3, add=TRUE)
+contour(Cu, add=TRUE)
 rect(-hw, (td + thk)/td, hw, td/td, col='white', border='grey')
