@@ -122,23 +122,3 @@ cfs_strikeslip <- function(Beta.deg, mu, B, nu_u, S1=1){
 	attr(ret, 'psi') <- psi
 	ret
 }
-
-
-stresses_on_reverse_fault(10, 0.33, 30)
-
-fric <- 0.65
-skemp <- 0.6
-poiss <- 0.33
-ropt <- cfs_reverse_optimal(fric, skemp, poiss)
-psifric <- asin(1 / sqrt(fric^2 + 1)) / 2
-stopifnot(all.equal(psifric, attr(ropt, 'psi')))
-
-betafric <- beta_angle(psifric, is.deg=FALSE)
-#print(c(psifric, betafric)*180/pi)
-r <- cfs_reverse(betafric*180/pi, fric, skemp, poiss)
-
-stopifnot(all.equal(ropt,r))
-
-rs <- cfs_strikeslip(betafric*180/pi, fric, skemp, poiss)
-
-rs
