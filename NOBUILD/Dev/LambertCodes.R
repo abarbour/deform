@@ -159,7 +159,18 @@ LambertTsai2020_Uniform <- function(x1, x2, resTopDepth, resThickness, resHalfWi
 
 #--------------------------------------------------------------
 # Plane-stress computations
-max_shear_principal <- function(S1, S3) (S1 - S3)/2
+max_shear_principal <- function(x, ...) UseMethod('max_shear_principal')
+max_shear_principal.LT.diffusive <- max_shear_principal.LT.uniform <- function(x){
+	Def <- x[['Def']]
+	max_shear_principal.default(S1=Def[,'S11'], S3=Def[,'S22'])
+}
+max_shear_principal.default <- function(S1, S3) (S1 - S3)/2
+
+max_shear <- function(x, ...) UseMethod('max_shear')
+max_shear.LT.diffusive <- max_shear.LT.uniform <- function(x, angle=FALSE){
+	p <- PSPS(x)
+	p[,ifelse(angle,'tau','tau_theta')]
+}
 
 mean_stress <- function(x, ...) UseMethod('mean_stress')
 mean_stress.LT.diffusive <- mean_stress.LT.uniform <- function(x){
@@ -222,8 +233,8 @@ fault_shear_stress.default <- function(s11, s12, s22, theta, is.deg=TRUE){
 }
 
 # (cfs_isoporo.defaultin beeler)
-cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, theta=0, fric=0.65, Skemp=0.6, ...){
-	message('CFS {S1-to-fault angle = ', theta, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
+cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, theta=0, fric=0.65, Skemp=0.6, verbose=TRUE, ...){
+	if (verbose) message('CFS {S1-to-fault angle = ', theta, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
 	tauf <- fault_shear_stress(x, theta)
 	Snorm <- fault_normal_stress(x, theta)
 	Smean <- mean_stress(x)

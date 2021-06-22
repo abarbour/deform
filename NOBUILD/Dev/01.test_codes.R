@@ -26,16 +26,16 @@ rs
 
 #-------------------------------------------------------------- Lamb tests
 
-n. <- 101
+n. <- 251
 h. <- seq(-10,10,length.out=n.)
 v. <- h.
 
 n.t <- ceiling(1.1*n.)
 t. <- 10**seq(-1,2,length.out=n.t)
 
-hw <- max(h.)/3
+hw <- max(h.)/5
 td <- 1
-thk <- td/10
+thk <- td/2
 
 ltd <- LambertTsai2020_Diffusive(x1=0, x2=1, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
 ltu <- LambertTsai2020_Uniform(x1=h., x2=1, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
@@ -49,14 +49,21 @@ abline(v=hw*c(-1,1), col='grey')
 PSPS(ltd)
 PSPS(ltu)
 
-fault_normal_stress(ltd)
-fault_normal_stress(ltu)
+rbind(
+fault_normal_stress(ltd),
+fault_shear_stress(ltd),
+mean_stress(ltd),
+max_shear_principal(ltd),
+max_shear(ltd)
+)
 
-fault_shear_stress(ltd)
-fault_shear_stress(ltu)
-
-mean_stress(ltd)
-mean_stress(ltu)
+rbind(
+fault_normal_stress(ltu),
+fault_shear_stress(ltu),
+mean_stress(ltu),
+max_shear_principal(ltu),
+max_shear(ltu)
+)
 
 cd0 <- cfs_isoporo(ltd)
 plot(t., cd0, type='l', ylim=max(abs(cd0), na.rm=TRUE)*c(-1,1))
@@ -66,3 +73,32 @@ cu0 <- cfs_isoporo(ltu)
 plot(h., cu0, type='l', ylim=max(abs(cu0), na.rm=TRUE)*c(-1,1))
 lines(h., cfs_isoporo(ltu, theta=45), lty=5)
 lines(h., cfs_isoporo(ltu, theta=90), lty=2)
+
+# do by depth
+do_calc_by_depth <- function(d){
+	ltud <- LambertTsai2020_Uniform(x1=h., x2=d, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
+}
+
+d. <- h.[h. >= 0]
+d. <- d.[d. < max(d.)/1.5]
+Du <- lapply(d., do_calc_by_depth)
+
+str(Du,1)
+
+#cu <- sapply(Du, cfs_isoporo, theta=60, verbose=FALSE)
+#cu <- sapply(Du, mean_stress)
+cu <- sapply(Du, max_shear)
+
+str(cu,1)
+xy <- list(x = h./td, y = d./td)
+Cu <- c(xy, list(z = cu))
+Cupos <- c(xy, list(z = 1*(cu>0)))
+lCup <- c(xy, list(z = log10(cu)))
+lCun <- c(xy, list(z = log10(-cu)))
+
+fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']])), zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
+#image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.3))
+#contour(lCup, add=TRUE)
+#contour(Cu, add=TRUE)
+#contour(lCun, lty=3, add=TRUE)
+rect(-hw, (td + thk)/td, hw, td/td, col='white', border='grey')
