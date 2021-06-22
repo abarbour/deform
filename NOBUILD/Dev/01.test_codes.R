@@ -29,7 +29,9 @@ rs
 n. <- 101
 h. <- seq(-10,10,length.out=n.)
 v. <- h.
-t. <- 10**seq(-1,2,length.out=n.-1)
+
+n.t <- ceiling(1.1*n.)
+t. <- 10**seq(-1,2,length.out=n.t)
 
 hw <- max(h.)/3
 td <- 1
@@ -46,3 +48,21 @@ abline(v=hw*c(-1,1), col='grey')
 #plane stress principal stresses
 PSPS(ltd)
 PSPS(ltu)
+
+fault_normal_stress(ltd)
+fault_normal_stress(ltu)
+
+fault_shear_stress(ltd)
+fault_shear_stress(ltu)
+
+mean_stress(ltd)
+mean_stress(ltu)
+
+cd0 <- cfs_isoporo(ltd)
+plot(t., cd0, type='l', ylim=max(abs(cd0), na.rm=TRUE)*c(-1,1))
+lines(t., cfs_isoporo(ltd, theta=45), lty=5)
+lines(t., cfs_isoporo(ltd, theta=90), lty=2)
+cu0 <- cfs_isoporo(ltu)
+plot(h., cu0, type='l', ylim=max(abs(cu0), na.rm=TRUE)*c(-1,1))
+lines(h., cfs_isoporo(ltu, theta=45), lty=5)
+lines(h., cfs_isoporo(ltu, theta=90), lty=2)

@@ -160,7 +160,13 @@ LambertTsai2020_Uniform <- function(x1, x2, resTopDepth, resThickness, resHalfWi
 #--------------------------------------------------------------
 # Plane-stress computations
 max_shear_principal <- function(S1, S3) (S1 - S3)/2
-mean_stress <- function(S1, S3) (S1 + S3)/2
+
+mean_stress <- function(x, ...) UseMethod('mean_stress')
+mean_stress.LT.diffusive <- mean_stress.LT.uniform <- function(x){
+	Def <- x[['Def']]
+	mean_stress.default(S1=Def[,'S11'], S3=Def[,'S22'])
+}
+mean_stress.default <- function(S1, S3) (S1 + S3)/2
 
 PSPS <- function(x, ...) UseMethod('PSPS')
 
@@ -185,20 +191,43 @@ PSPS.default <- function(s11, s12, s22){ # plane-stress principal stresses (i.e.
 #--------------------------------------------------------------
 # Fault-plane projection computations
 
-normal_stress_transformation <- function(s11, s12, s22, theta){
+fault_normal_stress <- function(x, theta=0, ...) UseMethod('fault_normal_stress')
+
+fault_normal_stress.LT.diffusive <- fault_normal_stress.LT.uniform <- function(x, theta=0, ...){
+	Def <- x[['Def']]
+	fault_normal_stress.default(s11 = Def[,'S11'], s12 = Def[,'S12'], s22 = Def[,'S22'], theta = theta, ...)
+}
+
+fault_normal_stress.default <- function(s11, s12, s22, theta, is.deg=TRUE){
 	# normal stress acting on a plane oriented by theta radians from the 1-2 coord system
 	ms <- mean_stress(s11, s22)
 	maxs <- max_shear_principal(s11, s22)
+	if (is.deg) theta <- theta * pi / 180
 	ms + maxs * cos(2*theta) + s12 * sin(2*theta)
 }
 
-shear_stress_transformation <- function(s11, s12, s22, theta){
+fault_shear_stress <- function(x, theta=0, ...) UseMethod('fault_shear_stress')
+
+fault_shear_stress.LT.diffusive <- fault_shear_stress.LT.uniform <- function(x, theta=0, ...){
+	Def <- x[['Def']]
+	fault_shear_stress.default(s11 = Def[,'S11'], s12 = Def[,'S12'], s22 = Def[,'S22'], theta = theta, ...)
+}
+
+fault_shear_stress.default <- function(s11, s12, s22, theta, is.deg=TRUE){
 	# shear stress acting on a plane oriented by theta radians from the 1-2 coord system
 	maxs <- max_shear_principal(s11, s22)
+	if (is.deg) theta <- theta * pi / 180
 	# use double-angle identity: sin(2x) = 2*sin(x)cos(x)
 	-maxs*sin(2*theta) + s12*(cos(theta)^2 - sin(theta)^2)
 }
 
-
-
+# (cfs_isoporo.defaultin beeler)
+cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, theta=0, fric=0.65, Skemp=0.6, ...){
+	message('CFS {S1-to-fault angle = ', theta, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
+	tauf <- fault_shear_stress(x, theta)
+	Snorm <- fault_normal_stress(x, theta)
+	Smean <- mean_stress(x)
+	cfsip <- cfs_isoporo.default(tau=tauf, mu=fric, Snormal = Snorm, Smean = Smean, B=Skemp)
+	zapsmall(cfsip)
+}
 

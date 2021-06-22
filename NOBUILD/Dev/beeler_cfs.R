@@ -9,7 +9,9 @@ cfs_basic <- function(tau, mu, Snormal, pp){
 	sn_eff <- effective_normal_stress(Snormal, pp)
 	tau - mu*(sn_eff)
 }
-cfs_isoporo <- function(tau, mu, Snormal, Smean, B){
+
+cfs_isoporo <- function(x, ...) UseMethod("cfs_isoporo")
+cfs_isoporo.default <- function(tau, mu, Snormal, Smean, B){
 	pp.iso <- pp_isotropic(Smean, B)
 	cfs_basic(tau, mu, Snormal, pp.iso)
 }
