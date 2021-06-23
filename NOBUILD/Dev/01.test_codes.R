@@ -6,6 +6,7 @@ source('beeler_cfs.R')
 stresses_on_reverse_fault(10, 0.33, 30)
 
 fric <- 0.65
+opt_ang <- atan(1/fric)*180/pi/2
 skemp <- 0.6
 poiss <- 0.33
 ropt <- cfs_reverse_optimal(fric, skemp, poiss)
@@ -75,7 +76,7 @@ Du <- lapply(d., do_calc_by_depth)
 library(pbapply)
 #pboptions(type = "timer")
 
-cu <- pbapply::pbsapply(Du, cfs_isoporo, Beta.deg=30, fric=fric, Skemp=skemp, verbose=FALSE)
+cu <- pbapply::pbsapply(Du, cfs_isoporo, Beta.deg=opt_ang, fric=fric, Skemp=skemp, verbose=FALSE)
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
 #cu <- sapply(Du, max_shear_principal)
