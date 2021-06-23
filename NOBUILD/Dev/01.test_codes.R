@@ -34,7 +34,7 @@ n.t <- ceiling(1.1*n.)
 t. <- 10**seq(-1,2,length.out=n.t)
 
 td <- 1
-hw <- td #max(h.)/5
+hw <- td
 thk <- td/2
 
 ltd <- LambertTsai2020_Diffusive(x1=0, x2=1, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
@@ -46,37 +46,21 @@ with(ltd, matplot(pars$Time, Def, type='l', lty=c(1,2,1,3,5,1,3,1), col=c(1,1,2,
 with(ltu, matplot(pars$x1, Def, ylim=c(-3,3), type='l', lty=c(1,2,1,3,5,1,3,1), col=c(1,1,2,2,2,3,3,4)))
 abline(v=hw*c(-1,1), col='grey')
 
+#library(magrittr)
 
-#plane stress principal stresses
-PSPS(ltd)
-PSPS(ltu)
+examp <- function(){
 
-rbind(
-fault_normal_stress(ltd),
-fault_shear_stress(ltd),
-mean_stress(ltd),
-max_shear_principal(ltd),
-max_shear(ltd)
-)
+	fs <- fault_stresses(ltu, Beta=30, is.deg=TRUE)
+	cu.nf <- cfs_isoporo(ltu, Beta.deg=30, fric=fric, Skemp=skemp)
+	cu.ss <- cfs_isoporo(ltu, Beta.deg=5, fric=fric, Skemp=skemp)
 
-rbind(
-fault_normal_stress(ltu),
-fault_shear_stress(ltu),
-mean_stress(ltu),
-max_shear_principal(ltu),
-max_shear(ltu)
-)
+	matplot(h., abs(fs[,7:10]), type='l', log='xy', ylim=range(abs(c(cu.ss,cu.nf)), na.rm=TRUE))
+	lines(h., abs(cu.nf), lwd=1, type='h', col=ifelse(cu<0,4,2))
+	lines(h., abs(cu.nf), lwd=1.2)
+	lines(h., abs(cu.ss), lty=2, lwd=2)
 
-cd0 <- cfs_isoporo(ltd)
-plot(t., cd0, type='l', ylim=max(abs(cd0), na.rm=TRUE)*c(-1,1))
-lines(t., cfs_isoporo(ltd, theta=45), lty=5)
-lines(t., cfs_isoporo(ltd, theta=90), lty=2)
-cu0 <- cfs_isoporo(ltu)
-plot(h., cu0, type='l', ylim=max(abs(cu0), na.rm=TRUE)*c(-1,1))
-lines(h., cfs_isoporo(ltu, theta=45), lty=5)
-lines(h., cfs_isoporo(ltu, theta=90), lty=2)
-
-#principal_stresses(ltu); stop()
+	plot(h., cu.nf / cu.ss, log='')
+}
 
 # do by depth
 do_calc_by_depth <- function(d){
@@ -88,17 +72,20 @@ d. <- d.[d. < max(d.)/1.5]
 Du <- lapply(d., do_calc_by_depth)
 
 #str(Du,1)
+library(pbapply)
+#pboptions(type = "timer")
 
-#cu <- sapply(Du, cfs_isoporo, theta=60, fric=fric, Skemp=skemp) #, verbose=FALSE)
+cu <- pbapply::pbsapply(Du, cfs_isoporo, Beta.deg=30, fric=fric, Skemp=skemp, verbose=FALSE)
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
-cu <- sapply(Du, max_shear_principal)
+#cu <- sapply(Du, max_shear_principal)
 #cu <- sapply(Du, ext1) # OK
 #cu <- sapply(Du, ext2) # OK
 #cu <- sapply(Du, shear) # out of wack for negative distances -- added kluge
 #str(cu,1)
 
-cu[!is.finite(cu)] <- NA
+#cu[!is.finite(cu)] <- NA
+
 xy <- list(x = h./td, y = d./td)
 Cu <- c(xy, list(z = cu))
 laCu <- c(xy, list(z = log10(abs(cu))))
@@ -110,5 +97,5 @@ fields::image.plot(laCu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE))) #, zlim=
 #image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
 #contour(lCup, add=TRUE)
 #contour(lCun, lty=3, add=TRUE)
-contour(laCu, add=TRUE)
-rect(-hw, (td + thk)/td, hw, td/td, col='white', border='grey')
+contour(Cu, add=TRUE)
+rect(-hw/td, (td + thk)/td, hw/td, td/td, col='white', border='grey')

@@ -215,106 +215,76 @@ ext2.LT.diffusive <- ext2.LT.uniform <- function(x, angle=FALSE){
 	Def[,'S22']
 }
 
-principal_stresses <- function(x, ...) UseMethod('principal_stresses')
-principal_stresses.LT.diffusive <- principal_stresses.LT.uniform <- function(x){
-	S1 <- ext1(x)
-	S2 <- ext2(x)
-	S12 <- shear(x)
-	S <- cbind(S1, S12, S12, S2)
+ang_max_shear <- function(x, ...) UseMethod('ang_max_shear')
+ang_max_shear.LT.diffusive <- ang_max_shear.LT.uniform <- function(x){
+	s11 <- ext1(x)
+	s22 <- ext2(x)
+	s12 <- shear(x)
+	atan((s22 - s11)/(2 * s12)) / 2
+}
+
+planestress_principal_stresses <- function(x, ...) UseMethod('planestress_principal_stresses')
+planestress_principal_stresses.LT.diffusive <- planestress_principal_stresses.LT.uniform <- function(x){
+	s1 <- ext1(x)
+	s2 <- ext2(x)
+	s12 <- shear(x)
+	zer <- 0*s1
+	S <- cbind(s1, s12, zer, s12, s2, zer, zer, zer, zer)
+	S[!is.finite(S)] <- NA
 	.get_eig <- function(si){
-		sim <- matrix(si, 2)
+		sim <- matrix(si, 3)
+		navals <- rep(NA, 3)
 		vals <- if (any(is.na(sim) | !is.finite(sim))){
-			c(NA, NA)
+			navals
 		} else {
-			ei <- eigen(sim)
-			ei[['values']]
+			ei <- try(eigen(sim))
+			if (inherits(ei, 'try-error')){
+				navals
+			} else {
+				zapsmall(ei[['values']])
+			}
 		}
-		vals <- matrix(vals, ncol=2)
+		vals <- matrix(vals, ncol=3)
 		
 		vals
 	}
-	s1s2 <- t(apply(S, 1, .get_eig))
-	colnames(s1s2) <- c('PS1','PS2')
-	s1s2
+	s1s2s3 <- t(apply(S, 1, .get_eig))
+	colnames(s1s2s3) <- c('PS1','PS2','PS3')
+	cbind(s11=s1, s12=s12, s22=s2, s1s2s3)
 }
 
-max_shear_principal <- function(x, ...) UseMethod('max_shear_principal')
-max_shear_principal.LT.diffusive <- max_shear_principal.LT.uniform <- function(x){
-	s1s2 <- principal_stresses(x)
-	max_shear_principal.default(S1=s1s2[,'PS1'], S3=s1s2[,'PS2'])
-}
-max_shear_principal.default <- function(S1, S3) (S1 - S3)/2
+MSMS <- function(x, ...) UseMethod('MSMS')
 
-max_shear <- function(x, ...) UseMethod('max_shear')
-max_shear.LT.diffusive <- max_shear.LT.uniform <- function(x, angle=FALSE){
-	p <- PSPS(x)
-	p[,ifelse(angle,'tau','tau_theta')]
+MSMS.LT.diffusive <- MSMS.LT.uniform <- function(x, ...){
+	PS <- planestress_principal_stresses(x)
+	S1 <- PS[,'PS1']
+	S3 <- PS[,'PS3']
+	maxshear <- (S1 - S3) / 2
+	meanstress <- (S1 + S3) / 2
+	cbind(PS, tau_max = maxshear, Smean = meanstress)
 }
 
-mean_stress <- function(x, ...) UseMethod('mean_stress')
-mean_stress.LT.diffusive <- mean_stress.LT.uniform <- function(x){
-	Def <- x[['Def']]
-	mean_stress.default(S1=ext1(x), S3=ext2(x))
-}
-mean_stress.default <- function(S1, S3) (S1 + S3)/2
+fault_stresses <- function(x, theta=0, ...) UseMethod('fault_stresses')
 
-PSPS <- function(x, ...) UseMethod('PSPS')
-
-PSPS.LT.diffusive <- PSPS.LT.uniform <- function(x, ...){
-	PSPS.default(s11=ext1(x), s12=shear(x), s22=ext2(x))
-}
-
-PSPS.default <- function(s11, s12, s22){ # plane-stress principal stresses (i.e., 2D Mohr's circle)
-	ms <- mean_stress.default(s11, s22)
-	maxs <- max_shear_principal.default(s11, s22)
-
-	shearstress <- sqrt(maxs^2 + s12^2)
-	shearangle <- atan(-maxs / s12) / 2
-
-	S1 <- ms + sqrt(maxs^2 + s12^2)
-	S2 <- ms - sqrt(maxs^2 + s12^2)
-
-	cbind(S1=S1, S2=S2, tau = shearstress, tau_theta = shearangle)
-}
-
-#--------------------------------------------------------------
-# Fault-plane projection computations
-
-fault_normal_stress <- function(x, theta=0, ...) UseMethod('fault_normal_stress')
-
-fault_normal_stress.LT.diffusive <- fault_normal_stress.LT.uniform <- function(x, theta=0, ...){
-	fault_normal_stress.default(s11=ext1(x), s12=shear(x), s22=ext2(x), theta = theta, ...)
-}
-
-fault_normal_stress.default <- function(s11, s12, s22, theta, is.deg=TRUE){
-	# normal stress acting on a plane oriented by theta radians from the 1-2 coord system
-	ms <- mean_stress.default(s11, s22)
-	maxs <- max_shear_principal.default(s11, s22)
-	if (is.deg) theta <- theta * pi / 180
-	ms + maxs * cos(2*theta) + s12 * sin(2*theta)
-}
-
-fault_shear_stress <- function(x, theta=0, ...) UseMethod('fault_shear_stress')
-
-fault_shear_stress.LT.diffusive <- fault_shear_stress.LT.uniform <- function(x, theta=0, ...){
-	fault_shear_stress.default(s11=ext1(x), s12=shear(x), s22=ext2(x), theta = theta, ...)
-}
-
-fault_shear_stress.default <- function(s11, s12, s22, theta, is.deg=TRUE){
-	# shear stress acting on a plane oriented by theta radians from the 1-2 coord system
-	maxs <- max_shear_principal.default(s11, s22)
-	if (is.deg) theta <- theta * pi / 180
-	# use double-angle identity: sin(2x) = 2*sin(x)cos(x)
-	-maxs*sin(2*theta) + s12*(cos(theta)^2 - sin(theta)^2)
+fault_stresses.LT.diffusive <- fault_stresses.LT.uniform <- function(x, Beta=45, is.deg=TRUE, ...){
+	# Beta is the angle between the plane and the greatest principal stress (S1, S3 < S2 < S1)
+	if (is.deg) Beta <- Beta * pi / 180
+	msms <- MSMS(x)
+	twopsi <- pi - 2*Beta
+	tau <- msms[,'tau_max']
+	Tau <- tau * sin(twopsi)
+	Sig <- msms[,'Smean'] + tau * cos(twopsi)
+	return(cbind(msms, Tau = Tau, Snorm = Sig))
 }
 
 # (cfs_isoporo.defaultin beeler)
-cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, theta=0, fric=0.65, Skemp=0.6, verbose=TRUE, ...){
-	if (verbose) message('CFS {S1-to-fault angle = ', theta, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
-	tauf <- fault_shear_stress(x, theta)
-	Snorm <- fault_normal_stress(x, theta)
-	Smean <- mean_stress(x)
-	cfsip <- cfs_isoporo.default(tau=tauf, mu=fric, Snormal = Snorm, Smean = Smean, B=Skemp)
+cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, Beta.deg, fric, Skemp, verbose=TRUE, ...){
+	if (verbose) message('CFS {S1-to-fault angle = ', Beta.deg, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
+	fs <- fault_stresses(x, Beta=Beta.deg, is.deg=TRUE)
+	Tau <- fs[,'Tau']
+	Snorm <- fs[,'Snorm']
+	Smean <- fs[,'Smean']
+	cfsip <- cfs_isoporo.default(tau=Tau, mu=fric, Snormal = Snorm, Smean = Smean, B=Skemp)
 	zapsmall(cfsip)
 }
 
