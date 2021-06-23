@@ -26,15 +26,15 @@ rs
 
 #-------------------------------------------------------------- Lamb tests
 
-n. <- 251
-h. <- seq(-10,10,length.out=n.)
+n. <- 201
+h. <- seq(-5,5,length.out=n.)
 v. <- h.
 
 n.t <- ceiling(1.1*n.)
 t. <- 10**seq(-1,2,length.out=n.t)
 
-hw <- max(h.)/5
 td <- 1
+hw <- td #max(h.)/5
 thk <- td/2
 
 ltd <- LambertTsai2020_Diffusive(x1=0, x2=1, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
@@ -76,6 +76,8 @@ plot(h., cu0, type='l', ylim=max(abs(cu0), na.rm=TRUE)*c(-1,1))
 lines(h., cfs_isoporo(ltu, theta=45), lty=5)
 lines(h., cfs_isoporo(ltu, theta=90), lty=2)
 
+#principal_stresses(ltu); stop()
+
 # do by depth
 do_calc_by_depth <- function(d){
 	ltud <- LambertTsai2020_Uniform(x1=h., x2=d, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
@@ -87,23 +89,26 @@ Du <- lapply(d., do_calc_by_depth)
 
 #str(Du,1)
 
-cu <- sapply(Du, cfs_isoporo, theta=60, fric=fric, Skemp=skemp) #, verbose=FALSE)
+#cu <- sapply(Du, cfs_isoporo, theta=60, fric=fric, Skemp=skemp) #, verbose=FALSE)
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
+cu <- sapply(Du, max_shear_principal)
 #cu <- sapply(Du, ext1) # OK
 #cu <- sapply(Du, ext2) # OK
 #cu <- sapply(Du, shear) # out of wack for negative distances -- added kluge
 #str(cu,1)
 
+cu[!is.finite(cu)] <- NA
 xy <- list(x = h./td, y = d./td)
 Cu <- c(xy, list(z = cu))
+laCu <- c(xy, list(z = log10(abs(cu))))
 Cupos <- c(xy, list(z = 1*(cu>0)))
 lCup <- c(xy, list(z = log10(cu)))
 lCun <- c(xy, list(z = log10(-cu)))
 
-fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']])), zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
-image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
+fields::image.plot(laCu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE))) #, zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
+#image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
 #contour(lCup, add=TRUE)
 #contour(lCun, lty=3, add=TRUE)
-contour(Cu, add=TRUE)
+contour(laCu, add=TRUE)
 rect(-hw, (td + thk)/td, hw, td/td, col='white', border='grey')

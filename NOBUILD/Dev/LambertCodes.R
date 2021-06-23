@@ -135,9 +135,22 @@ LambertTsai2020_Uniform <- function(x1, x2, resTopDepth, resThickness, resHalfWi
 	
 	# Shear stress, Sigma_12 / mu 
 	f1_s12 <- -log(x1am^2 + x2Dm^2) + log(x1am^2 + (x2Dm - resThickness)^2) 
-	#f1 = -log((x1-a).^2+(x2-D).^2) + log((x1-a).^2+(x2-D-T).^2);
-	f2_s12 <- (16 * resHalfWidth * x1 * x2 * x2D + (x1am^2 + x2D^2) * (x1a^2 + x2D^2) * (log(x1a^2 + x2Dm^2) + log(x1am^2 + x2D^2) - log(x1a^2 + x2D^2))) / ((x1am^2 + x2D^2) * (x1a^2 + x2D^2))
-	f3_s12 <- -(16 * resHalfWidth * x1 * x2 * (x2D + resThickness) + (x1am^2 + (x2D + resThickness)^2) * (x1a^2 + (x2D + resThickness)^2) * (log(x1a^2 + (x2Dm + resThickness)^2) + log(x1am^2 + (x2D + resThickness)^2) - log(x1a^2 + (x2D + resThickness)^2))) / ((x1am^2 + (x2D + resThickness)^2) * (x1a^2 + (x2D + resThickness)^2))
+	f2_s12 <- (
+		16 * resHalfWidth * x1 * x2 * x2D + 
+		(x1am^2 + x2D^2) * (x1a^2 + x2D^2) * (log(x1a^2 + x2Dm^2) + 
+		log(x1am^2 + x2D^2) - 
+		log(x1a^2 + x2D^2))
+	) / (
+		(x1am^2 + x2D^2) * (x1a^2 + x2D^2)
+	)
+	f3_s12 <- -(
+		16 * resHalfWidth * x1 * x2 * (x2D + resThickness) + 
+		(x1am^2 + (x2D + resThickness)^2) * (x1a^2 + (x2D + resThickness)^2) * (log(x1a^2 + (x2Dm + resThickness)^2) + 
+		log(x1am^2 + (x2D + resThickness)^2) - 
+		log(x1a^2 + (x2D + resThickness)^2))
+	) / (
+		(x1am^2 + (x2D + resThickness)^2) * (x1a^2 + (x2D + resThickness)^2)
+	)
 	sig12 <- (f1_s12 + f2_s12 + f3_s12) / 2
 	
 	
@@ -202,9 +215,33 @@ ext2.LT.diffusive <- ext2.LT.uniform <- function(x, angle=FALSE){
 	Def[,'S22']
 }
 
+principal_stresses <- function(x, ...) UseMethod('principal_stresses')
+principal_stresses.LT.diffusive <- principal_stresses.LT.uniform <- function(x){
+	S1 <- ext1(x)
+	S2 <- ext2(x)
+	S12 <- shear(x)
+	S <- cbind(S1, S12, S12, S2)
+	.get_eig <- function(si){
+		sim <- matrix(si, 2)
+		vals <- if (any(is.na(sim) | !is.finite(sim))){
+			c(NA, NA)
+		} else {
+			ei <- eigen(sim)
+			ei[['values']]
+		}
+		vals <- matrix(vals, ncol=2)
+		
+		vals
+	}
+	s1s2 <- t(apply(S, 1, .get_eig))
+	colnames(s1s2) <- c('PS1','PS2')
+	s1s2
+}
+
 max_shear_principal <- function(x, ...) UseMethod('max_shear_principal')
 max_shear_principal.LT.diffusive <- max_shear_principal.LT.uniform <- function(x){
-	max_shear_principal.default(S1=ext1(x), S3=ext2(x))
+	s1s2 <- principal_stresses(x)
+	max_shear_principal.default(S1=s1s2[,'PS1'], S3=s1s2[,'PS2'])
 }
 max_shear_principal.default <- function(S1, S3) (S1 - S3)/2
 
