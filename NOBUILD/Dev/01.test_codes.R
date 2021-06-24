@@ -1,3 +1,8 @@
+library(pbapply)
+#pboptions(type = "timer")
+library(viridis)
+
+
 source('LambertCodes.R')
 source('beeler_cfs.R')
 
@@ -27,19 +32,19 @@ rs
 
 #-------------------------------------------------------------- Lamb tests
 
-n. <- 201
-h. <- seq(-5,5,length.out=n.)
+n. <- 101
+h. <- seq(-5,5,length.out=n.) * 1e3
 v. <- h.
 
 n.t <- ceiling(1.1*n.)
 t. <- 10**seq(-1,2,length.out=n.t)
 
-td <- 1
+td <- 1 * 1e3
 hw <- td
-thk <- td/2
+thk <- hw/2
 
-ltd <- LambertTsai2020_Diffusive(x1=0, x2=1, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
-ltu <- LambertTsai2020_Uniform(x1=h., x2=1, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
+ltd <- LambertTsai2020_Diffusive(x1=0 * 1e3, x2=1 * 1e3, y1=hw, resTopDepth=td, resThickness=thk, resDiffusivity=1, Time=t.)
+ltu <- LambertTsai2020_Uniform(x1=h., x2=1 * 1e3, resTopDepth=td, resThickness=thk, resHalfWidth=hw)
 
 #> colnames(ltu[['Def']])
 #[1] "U1"  "U2"  "S11" "S12" "S22" "E11"
@@ -69,14 +74,22 @@ do_calc_by_depth <- function(d){
 }
 
 d. <- h.[h. >= 0]
-d. <- d.[d. < max(d.)/1.5]
+d. <- d.[d. < max(d.)]
 Du <- lapply(d., do_calc_by_depth)
-
 #str(Du,1)
-library(pbapply)
-#pboptions(type = "timer")
 
-cu <- pbapply::pbsapply(Du, cfs_isoporo, Beta.deg=opt_ang, fric=fric, Skemp=skemp, verbose=FALSE)
+recomp <- FALSE
+
+if (!exists('cu.o') | recomp){
+cu.o <- pbapply::pbsapply(Du, cfs_isoporo, 
+	Beta.deg=opt_ang, fric=fric, Skemp=skemp, 
+	Shearmod = 10e9, nu_u = poiss, 
+	Qt = resQt(m_dot=1e6/(12*30*86400), resRadius=hw, timespan=12*30*86400),
+	verbose=FALSE)
+}
+
+cu <- cu.o / 1e6 # to [Mk]Pa
+
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
 #cu <- sapply(Du, max_shear_principal)
@@ -86,17 +99,22 @@ cu <- pbapply::pbsapply(Du, cfs_isoporo, Beta.deg=opt_ang, fric=fric, Skemp=skem
 #str(cu,1)
 
 #cu[!is.finite(cu)] <- NA
+norm_by <- 1 #td
 
-xy <- list(x = h./td, y = d./td)
+xy <- list(x = h./norm_by, y = d./norm_by)
 Cu <- c(xy, list(z = cu))
 laCu <- c(xy, list(z = log10(abs(cu))))
 Cupos <- c(xy, list(z = 1*(cu>0)))
 lCup <- c(xy, list(z = log10(cu)))
 lCun <- c(xy, list(z = log10(-cu)))
 
-fields::image.plot(laCu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE))) #, zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
+fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE)),
+	col = c(NA,viridis::cividis(64, direction=-1)), 
+	zlim=max(abs(cu),na.rm=TRUE)*c(0,1))
 #image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
 #contour(lCup, add=TRUE)
 #contour(lCun, lty=3, add=TRUE)
-contour(Cu, add=TRUE)
-rect(-hw/td, (td + thk)/td, hw/td, td/td, col='white', border='grey')
+#contour(Cu, add=TRUE)
+contour(laCu, add=TRUE, levels=seq(-3,3))
+contour(laCu, add=TRUE, levels=seq(-3,3)+log10(2), lty=2)
+rect(-hw/norm_by, (td + thk)/norm_by, hw/norm_by, td/norm_by, col='white', border='grey')

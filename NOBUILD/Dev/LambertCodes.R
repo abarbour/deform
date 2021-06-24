@@ -264,6 +264,36 @@ MSMS.LT.diffusive <- MSMS.LT.uniform <- function(x, ...){
 	cbind(PS, tau_max = maxshear, Smean = meanstress)
 }
 
+prefactor <- function(x, ...) UseMethod('prefactor')
+prefactor.LT.uniform <- function(x, Shearmod, nu_u, Skemp, rho_f, Qt=1, verbose=TRUE, ...){
+	warns <- NULL
+	if (missing(Qt)){
+		warns <- c(warns, " ! mass flux term (Q * t) set to unity; see 'resQt'")
+		Qt <- 1
+	}
+	if (missing(rho_f)){
+		warns <- c(warns, " ! fluid density set to represent STP water")
+		rho_f <- 1000.0
+	}
+	if (!is.null(warns)) warning(warns, call.=FALSE)
+	# between eqs 8 / 9
+	# result still needs to be multiplied by Q*t
+	# where Q is net mass flux from the producing region, t is time
+	# Q = dm/dt / Area = rho_f * volume
+	# dm/dt = rho_f * volume * area
+	# good simple description: https://web.mit.edu/16.unified/www/FALL/fluids/Lectures/f06.pdf
+	C <- Shearmod * (1 + nu_u) * Skemp / (3 * pi * rho_f * (1 - nu_u))
+	C * Qt / 2
+}
+prefactor.LT.diffusive <- function(x, ...) .NotYetImplemented()
+
+resQt <- function(m_dot, resRadius, timespan){
+	# res assumed circular
+	Area <- pi * resRadius^2
+	Q <- m_dot / Area
+	Q * timespan
+}
+
 fault_stresses <- function(x, theta=0, ...) UseMethod('fault_stresses')
 
 fault_stresses.LT.diffusive <- fault_stresses.LT.uniform <- function(x, Beta=45, is.deg=TRUE, ...){
@@ -280,11 +310,12 @@ fault_stresses.LT.diffusive <- fault_stresses.LT.uniform <- function(x, Beta=45,
 # (cfs_isoporo.defaultin beeler)
 cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, Beta.deg, fric, Skemp, verbose=TRUE, ...){
 	if (verbose) message('CFS {S1-to-fault angle = ', Beta.deg, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
-	fs <- fault_stresses(x, Beta=Beta.deg, is.deg=TRUE)
+	nfs <- fault_stresses(x, Beta=Beta.deg, is.deg=TRUE)
+	C <- prefactor(x, Skemp = Skemp, ...)
+	fs <- C * nfs
 	Tau <- fs[,'Tau']
 	Snorm <- fs[,'Snorm']
 	Smean <- fs[,'Smean']
 	cfsip <- cfs_isoporo.default(tau=Tau, mu=fric, Snormal = Snorm, Smean = Smean, B=Skemp)
 	zapsmall(cfsip)
 }
-
