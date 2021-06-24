@@ -1,7 +1,8 @@
 library(pbapply)
 #pboptions(type = "timer")
 library(viridis)
-
+library(fields)
+library(fMultivar)
 
 source('LambertCodes.R')
 source('beeler_cfs.R')
@@ -88,7 +89,12 @@ cu.o <- pbapply::pbsapply(Du, cfs_isoporo,
 	verbose=FALSE)
 }
 
-cu <- cu.o / 1e6 # to [Mk]Pa
+# fill in singular points (only seen at reservoir 'corners')
+r0 <- raster::raster(cu.o)
+rF <- raster::focal(r0, 
+	w=matrix(1, nrow=3, ncol=3), # equal-weighted average of all surrounding points
+	fun=mean, NAonly=TRUE, na.rm=TRUE) 
+cu <- as.matrix(rF)
 
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
@@ -103,6 +109,7 @@ norm_by <- 1 #td
 
 xy <- list(x = h./norm_by, y = d./norm_by)
 Cu <- c(xy, list(z = cu))
+
 laCu <- c(xy, list(z = log10(abs(cu))))
 Cupos <- c(xy, list(z = 1*(cu>0)))
 lCup <- c(xy, list(z = log10(cu)))
@@ -117,4 +124,4 @@ fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE)),
 #contour(Cu, add=TRUE)
 contour(laCu, add=TRUE, levels=seq(-3,3))
 contour(laCu, add=TRUE, levels=seq(-3,3)+log10(2), lty=2)
-rect(-hw/norm_by, (td + thk)/norm_by, hw/norm_by, td/norm_by, col='white', border='grey')
+#rect(-hw/norm_by, (td + thk)/norm_by, hw/norm_by, td/norm_by, col='white', border='grey')
