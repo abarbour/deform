@@ -79,13 +79,16 @@ d. <- d.[d. < max(d.)]
 Du <- lapply(d., do_calc_by_depth)
 #str(Du,1)
 
-recomp <- FALSE
+recomp <- TRUE
 
+qt.nbgf <- resQt(m_dot=2e9/(5*365*86400), # 2014--2021
+		resRadius=hw, 
+		timespan=12*30*86400)
 if (!exists('cu.o') | recomp){
 cu.o <- pbapply::pbsapply(Du, cfs_isoporo, 
 	Beta.deg=opt_ang, fric=fric, Skemp=skemp, 
 	Shearmod = 10e9, nu_u = poiss, 
-	Qt = resQt(m_dot=1e6/(12*30*86400), resRadius=hw, timespan=12*30*86400),
+	Qt = qt.nbgf,
 	verbose=FALSE)
 }
 
@@ -94,7 +97,8 @@ r0 <- raster::raster(cu.o)
 rF <- raster::focal(r0, 
 	w=matrix(1, nrow=3, ncol=3), # equal-weighted average of all surrounding points
 	fun=mean, NAonly=TRUE, na.rm=TRUE) 
-cu <- as.matrix(rF)
+
+cu <- as.matrix(rF) / 1e6 # convert to ?Pa
 
 #cu <- sapply(Du, mean_stress)
 #cu <- sapply(Du, max_shear)
@@ -116,8 +120,9 @@ lCup <- c(xy, list(z = log10(cu)))
 lCun <- c(xy, list(z = log10(-cu)))
 
 fields::image.plot(Cu, asp=1, ylim=rev(range(Cu[['y']], na.rm=TRUE)),
-	col = c(NA,viridis::cividis(64, direction=-1)), 
-	zlim=max(abs(cu),na.rm=TRUE)*c(0,1))
+	col = c(NA,viridis::cividis(64, direction=-1)))
+	#, 
+	#zlim=max(abs(cu),na.rm=TRUE)*c(-1,1))
 #image(Cupos, add=TRUE, col=adjustcolor(c('white',NA), alpha=0.5))
 #contour(lCup, add=TRUE)
 #contour(lCun, lty=3, add=TRUE)

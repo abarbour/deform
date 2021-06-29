@@ -196,6 +196,7 @@ LambertTsai2020_Uniform <- function(x1, x2, resTopDepth, resThickness, resHalfWi
 	ret
 }
 
+
 #--------------------------------------------------------------
 # Plane-stress computations
 
@@ -249,6 +250,7 @@ planestress_principal_stresses.LT.diffusive <- planestress_principal_stresses.LT
 		vals
 	}
 	s1s2s3 <- t(apply(S, 1, .get_eig))
+	print(summary(s1s2s3))
 	colnames(s1s2s3) <- c('PS1','PS2','PS3')
 	cbind(s11=s1, s12=s12, s22=s2, s1s2s3)
 }
@@ -276,14 +278,20 @@ prefactor.LT.uniform <- function(x, Shearmod, nu_u, Skemp, rho_f, Qt=1, verbose=
 		rho_f <- 1000.0
 	}
 	if (!is.null(warns)) warning(warns, call.=FALSE)
-	# between eqs 8 / 9
+	#
+	# Scaling in Equation 14
+	#
+	resRadius <- x[['res']]$half.width
+	C <- Shearmod * (1 + nu_u) * Skemp / (2 * resRadius * 3 * pi * rho_f * (1 - nu_u))
+	
 	# result still needs to be multiplied by Q*t
 	# where Q is net mass flux from the producing region, t is time
 	# Q = dm/dt / Area = rho_f * volume
 	# dm/dt = rho_f * volume * area
 	# good simple description: https://web.mit.edu/16.unified/www/FALL/fluids/Lectures/f06.pdf
-	C <- Shearmod * (1 + nu_u) * Skemp / (3 * pi * rho_f * (1 - nu_u))
-	C * Qt / 2
+	
+	C * Qt
+	
 }
 prefactor.LT.diffusive <- function(x, ...) .NotYetImplemented()
 
@@ -311,11 +319,13 @@ fault_stresses.LT.diffusive <- fault_stresses.LT.uniform <- function(x, Beta=45,
 cfs_isoporo.LT.diffusive <- cfs_isoporo.LT.uniform <- function(x, Beta.deg, fric, Skemp, verbose=TRUE, ...){
 	if (verbose) message('CFS {S1-to-fault angle = ', Beta.deg, '°, friction = ', fric, "} for isotropic undrained poroelastic response {B = ", Skemp, "}")
 	nfs <- fault_stresses(x, Beta=Beta.deg, is.deg=TRUE)
+	#print(summary(nfs))
 	C <- prefactor(x, Skemp = Skemp, ...)
 	fs <- C * nfs
 	Tau <- fs[,'Tau']
 	Snorm <- fs[,'Snorm']
 	Smean <- fs[,'Smean']
-	cfsip <- cfs_isoporo.default(tau=Tau, mu=fric, Snormal = Snorm, Smean = Smean, B=Skemp)
+	cfsip <- cfs_isoporo.default(tau=Tau, mu=fric, Snormal = Snorm, Smean = Smean, B = Skemp)
+	#print(summary(cfsip))
 	zapsmall(cfsip)
 }

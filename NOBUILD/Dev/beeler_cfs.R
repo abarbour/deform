@@ -13,7 +13,10 @@ cfs_basic <- function(tau, mu, Snormal, pp){
 cfs_isoporo <- function(x, ...) UseMethod("cfs_isoporo")
 cfs_isoporo.default <- function(tau, mu, Snormal, Smean, B, ...){
 	pp.iso <- pp_isotropic(Smean, B)
-	cfs_basic(tau, mu, Snormal, pp.iso)
+	cf <- cfs_basic(tau, mu, Snormal, pp.iso)
+	print("")
+	print(summary(cbind(Smean, B, pp.iso, tau, cf)))	
+	cf
 }
 
 apparent_friction_basic <- function(mu, pp, Snormal){
