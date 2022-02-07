@@ -11,7 +11,7 @@ static(Mw, Distance.km, model = "w88")
 dynamic(
   Mw,
   Distance.km,
-  model = c("aw14", "bc17", "fbl20"),
+  model = c("aw14", "bc17", "fbl20", "blf21"),
   strn.type = c("general", "areal", "diffext", "shear", "dil"),
   km2deg = NULL
 )
@@ -43,6 +43,9 @@ Currently the options for \code{model} are:
   for very short distances); or
   \code{'fbl20'} for Farghal, Barbour and Langbein (2020): applicable to regional earthquakes 
   at < 500 km (best accuracy at short distances; inaccurate > 500 km);
+  \code{'blf21'} for Barbour, Langbein, and Farghal (2021): best for regional earthquakes as
+  it accounts for station and event terms in the fbl20 dataset; the basis of the M_{DS} 
+  magnitude scale, which is basically equivalent to Mw.
   }
 }
 }
@@ -69,6 +72,11 @@ Farghal, N., A. Barbour, and J. Langbein (2020),
 The Potential of Using Dynamic Strains in Earthquake Early Warning Applications, 
 Seismol. Res. Lett., in press, 1–12, 
 doi: 10.1785/0220190385
+
+Barbour, A., J. Langbein, and N. Farghal (2021),
+Earthquake Magnitudes from Dynamic Strain,
+Bull. Seismol. Soc. Am.m, 111 (3): 1325–1346
+doi: 10.1785/0120200360
 
 Wyatt, F. K. (1988),
 Measurements of coseismic deformation in southern California: 1972–1982, 

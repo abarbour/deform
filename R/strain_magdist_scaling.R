@@ -10,6 +10,9 @@
 #'   for very short distances); or
 #'   \code{'fbl20'} for Farghal, Barbour and Langbein (2020): applicable to regional earthquakes 
 #'   at < 500 km (best accuracy at short distances; inaccurate > 500 km);
+#'   \code{'blf21'} for Barbour, Langbein, and Farghal (2021): best for regional earthquakes as
+#'   it accounts for station and event terms in the fbl20 dataset; the basis of the M_{DS} 
+#'   magnitude scale, which is basically equivalent to Mw.
 #'   }
 #' }
 #' @name magnitude-distance
@@ -36,6 +39,11 @@
 #' The Potential of Using Dynamic Strains in Earthquake Early Warning Applications, 
 #' Seismol. Res. Lett., in press, 1–12, 
 #' doi: 10.1785/0220190385
+#' 
+#' @references Barbour, A., J. Langbein, and N. Farghal (2021),
+#' Earthquake Magnitudes from Dynamic Strain,
+#' Bull. Seismol. Soc. Am.m, 111 (3): 1325–1346
+#' doi: 10.1785/0120200360
 #' 
 #' @references Wyatt, F. K. (1988),
 #' Measurements of coseismic deformation in southern California: 1972–1982, 
@@ -64,7 +72,7 @@ Mw2M0 <- function(Mw) 10 ** (1.5 * Mw + 9.1) # result in N*m
 
 #' @rdname magnitude-distance
 #' @export
-dynamic <- function(Mw, Distance.km, model=c("aw14",'bc17','fbl20'),
+dynamic <- function(Mw, Distance.km, model=c("aw14",'bc17','fbl20','blf21'),
                     strn.type=c('general','areal','diffext','shear','dil'),
                     km2deg=NULL){
   
@@ -80,9 +88,14 @@ dynamic <- function(Mw, Distance.km, model=c("aw14",'bc17','fbl20'),
   
   ld <- log10(Distance)
   
-  lstrn <- if (model == 'fbl20'){
+  lstrn <- if (model == 'blf21'){
+    # Barbour Langbein and Farghal (2021)
+    warning('BLF21 scaling result does not account for site or (longitude < -12) bias', 
+            immediate. = FALSE, call. = FALSE)
+    0.92*Mw - 1.45 * ld - 0.00072 * Distance + log10(3e-9)
+  } else if (model == 'fbl20'){
     # Farghal, Barbour and Langbein (2020) Equation 11
-    0.83*Mw - 1.43*ld - 0.0013 * Distance - 8.051
+    0.83*Mw - 1.43 * ld - 0.0013 * Distance - 8.051
   } else if (model == 'bc17'){
     # Barbour and Crowell (2017) Equation 8
     1.25*Mw - 1.992*ld - 9.513

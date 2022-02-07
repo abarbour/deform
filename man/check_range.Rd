@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{check_range}
 \alias{check_range}
-\title{Check whether a quantity is wihin an acceptable range}
+\title{Check whether a quantity is within an acceptable range}
 \usage{
 check_range(x, xmin = 0, xmax = 1)
 }
@@ -17,7 +17,7 @@ check_range(x, xmin = 0, xmax = 1)
 see \code{\link{stopifnot}}
 }
 \description{
-Check whether a quantity is wihin an acceptable range
+Check whether a quantity is within an acceptable range
 }
 \note{
 This function throws and error if range of \code{x} is outside [\code{xmin},\code{xmax}].
