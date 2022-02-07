@@ -90,7 +90,7 @@ dynamic <- function(Mw, Distance.km, model=c("aw14",'bc17','fbl20','blf21'),
   
   lstrn <- if (model == 'blf21'){
     # Barbour Langbein and Farghal (2021)
-    warning('BLF21 scaling result does not account for site or (longitude < -12) bias', 
+    warning('BLF21 scaling result does not account for site or (longitude < -124) bias', 
             immediate. = FALSE, call. = FALSE)
     0.92*Mw - 1.45 * ld - 0.00072 * Distance + log10(3e-9)
   } else if (model == 'fbl20'){
