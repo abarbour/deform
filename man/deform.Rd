@@ -2,8 +2,12 @@
 % Please edit documentation in R/deform-package.R
 \docType{package}
 \name{deform}
+\alias{deform-package}
 \alias{deform}
 \title{The \code{deform} package: crustal deformation tools in R}
+\description{
+Crustal deformation modeling tools. Currently this code supports calculation of deformation induced by depleting reservoirs (i.e., Geertsma, 1973; Segall, 1985, 1989, 1992; Lambert and Tsai, 2020), slipping faults (i.e., Rice and Cleary, 1976; Roeloffs, 1996), spherical cavities (i.e., Mogi, 1958), and injection point/step sources (i.e., Rudnicki, 1986). One can also calculate static and dynamic strains from magnitude-distance relationships.
+}
 \seealso{
 \code{\link{segall85}} for deformation associated with fluid extraction
 }
